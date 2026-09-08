@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =================== ENUMS ===================
+
+enum ReservationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum WhatsAppLeadStatus {
+  CLICKED
+  INITIATED
+  CHATTING
+  QUOTE_SENT
+  CONVERTED
+  ABANDONED
+}
+
+enum AnalyticsEventType {
+  PAGE_VIEW
+  VISITOR
+  CLICK
+  WHATSAPP_CLICK
+  PHONE_CLICK
+  INSTAGRAM_CLICK
+  RESERVATION_START
+  RESERVATION_SUBMITTED
+}
+
+// =================== CORE OCN MODELS ===================
+
+model AdminUser {
+  id                 String    @id @default(cuid())
+  username           String    @unique
+  email              String?   @unique
+  passwordHash       String
+  mustChangePassword Boolean   @default(true)
+  failedAttempts     Int       @default(0)
+  lockedUntil        DateTime?
+  lastLoginAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Client {
+  id                    String                 @id @default(cuid())
+  legalName             String
+  displayName           String
+  contactEmail          String?
+  contactPhone          String?
+  ownershipClient       Decimal                @default(70.00) @db.Decimal(5, 2)
+  ownershipOcn          Decimal                @default(30.00) @db.Decimal(5, 2)
+  revenueShareOcn       Decimal                @default(10.00) @db.Decimal(5, 2)
+  maintenanceStatus     String                 @default("ACTIVE")
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  websites              Website[]
+  commercialAgreements  CommercialAgreement[]
+  reservations          Reservation[]
+  revenues              Revenue[]
+  settlements           Settlement[]
+  analyticsEvents       AnalyticsEvent[]
+  auditLogs             AuditLog[]
+}
+
+model Website {
+  id              String           @id @default(cuid())
+  clientId        String
+  client          Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  domain          String           @unique
+  name            String
+  status          String           @default("ACTIVE")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  analyticsEvents AnalyticsEvent[]
+  reservations    Reservation[]
+  revenues        Revenue[]
+
+  @@index([clientId])
+}
+
+model CommercialAgreement {
+  id                 String    @id @default(cuid())
+  clientId           String
+  client             Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  version            String    @default("v1.2 - 2026")
+  title              String
+  effectiveDate      DateTime  @default(now())
+  ownershipClient    Decimal   @default(70.00) @db.Decimal(5, 2)
+  ownershipOcn       Decimal   @default(30.00) @db.Decimal(5, 2)
+  revenueShareOcn    Decimal   @default(10.00) @db.Decimal(5, 2)
+  status             String    @default("ACTIVE")
+  clauses            Json?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([clientId])
+}
+
+model AnalyticsEvent {
+  id        String             @id @default(cuid())
+  clientId  String
+  client    Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  websiteId String
+  website   Website            @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  eventType AnalyticsEventType
+  page      String
+  referrer  String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime           @default(now())
+
+  @@index([clientId, eventType, createdAt])
+  @@index([websiteId, createdAt])
+}
+
+model Reservation {
+  id                 String                    @id @default(cuid())
+  clientId           String
+  client             Client                    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  websiteId          String
+  website            Website                   @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  customerName       String
+  customerEmail      String
+  customerPhone      String
+  serviceTitle       String
+  bookingDate        DateTime
+  partySize          Int                       @default(2)
+  status             ReservationStatus         @default(PENDING)
+  whatsappLeadStatus WhatsAppLeadStatus        @default(CLICKED)
+  revenueAmount      Decimal?                  @db.Decimal(10, 2)
+  notes              String?
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+
+  statusHistory      ReservationStatusHistory[]
+  revenue            Revenue?
+
+  @@index([clientId, status])
+  @@index([websiteId, createdAt])
+}
+
+model ReservationStatusHistory {
+  id            String             @id @default(cuid())
+  reservationId String
+  reservation   Reservation        @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  fromStatus    ReservationStatus?
+  toStatus      ReservationStatus
+  changedBy     String
+  notes         String?
+  createdAt     DateTime           @default(now())
+
+  @@index([reservationId, createdAt])
+}
+
+model RevenuePeriod {
+  id          String       @id // e.g. "2026-H1", "2026-H2"
+  periodName  String
+  startDate   DateTime
+  endDate     DateTime
+  dueDate     DateTime
+  status      String       @default("OPEN") // OPEN, CLOSED, RECONCILED
+  createdAt   DateTime     @default(now())
+
+  revenues    Revenue[]
+  settlements Settlement[]
+}
+
+model Revenue {
+  id                    String           @id @default(cuid())
+  reservationId         String?          @unique
+  reservation           Reservation?     @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  clientId              String
+  client                Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  websiteId             String
+  website               Website          @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  periodId              String
+  period                RevenuePeriod    @relation(fields: [periodId], references: [id])
+  serviceTitle          String
+  grossAmount           Decimal          @db.Decimal(10, 2)
+  refundAmount          Decimal          @default(0.00) @db.Decimal(10, 2)
+  processingFees        Decimal          @default(0.00) @db.Decimal(10, 2)
+  definedRevenue        Decimal          @db.Decimal(10, 2)
+  isVerified            Boolean          @default(true)
+  verifiedAt            DateTime?
+  verifiedBy            String?
+  isCorrection          Boolean          @default(false)
+  originalRevenueId     String?
+  correctionReason      String?
+  settlementStatus      String           @default("UNPAID") // UNPAID, PARTIAL, PAID
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  revenueShare          OcnRevenueShare?
+
+  @@index([clientId, periodId])
+  @@index([isVerified, settlementStatus])
+}
+
+model OcnRevenueShare {
+  id               String   @id @default(cuid())
+  revenueId        String   @unique
+  revenue          Revenue  @relation(fields: [revenueId], references: [id], onDelete: Cascade)
+  ocnPercentage    Decimal  @default(10.00) @db.Decimal(5, 2)
+  clientPercentage Decimal  @default(90.00) @db.Decimal(5, 2)
+  ocnAmount        Decimal  @db.Decimal(10, 2)
+  clientAmount     Decimal  @db.Decimal(10, 2)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Settlement {
+  id               String        @id @default(cuid())
+  clientId         String
+  client           Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  periodId         String
+  period           RevenuePeriod @relation(fields: [periodId], references: [id])
+  grossRevenue     Decimal       @db.Decimal(10, 2)
+  definedRevenue   Decimal       @db.Decimal(10, 2)
+  ocnShare         Decimal       @db.Decimal(10, 2)
+  amountPaid       Decimal       @default(0.00) @db.Decimal(10, 2)
+  balanceDue       Decimal       @db.Decimal(10, 2)
+  status           String        @default("UNPAID") // UNPAID, PARTIAL, PAID
+  paymentReference String?
+  settledAt        DateTime?
+  dueDate          DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@unique([clientId, periodId])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  action      String
+  entityType  String
+  entityId    String?
+  performedBy String
+  details     Json
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([action, createdAt])
+  @@index([clientId, createdAt])
+}
+
+// =================== PUBLIC CLIENT SYSTEM COMPATIBILITY ===================
+
+model Tour {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  description     String
+  icon            String
+  getYourGuideUrl String?
+  duration        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ZakyUser {
+  id        String   @id @default(cuid())
+  username  String   @unique @default("zaky")
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteImage {
+  id        String   @id @default(cuid())
+  slotKey   String   @unique
+  label     String
+  url       String
+  alt       String?
+  caption   String?
+  section   String   // "Hero", "About", "Brand & Identity", "Tour: Medina", etc.
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([section])
+}

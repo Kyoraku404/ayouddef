@@ -8,12 +8,17 @@ import {
   Lock,
   ExternalLink,
   ArrowLeft,
+  Download,
+  FileText,
+  Mail,
+  CheckCircle2,
+  Hash,
 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Official Contract & Sovereign Ratification | OCN & Zaky",
   description:
-    "Official confidential commercial partnership agreement and legal ratification between OCN and Mohamed Zaky Bentabaa.",
+    "Official confidential commercial partnership agreement and signed PDF between OCN and Mohamed Zaky Bentabaa.",
   robots: {
     index: false,
     follow: false,
@@ -24,6 +29,8 @@ export const metadata: Metadata = {
 
 const PROTO_CONTRACT_URL =
   "https://mail.proton.me/u/1/inbox/WvH_uA_zSRh7V9FMzkxR5MALvu3XP4WBSNkge5sfREP2MfDe26iOXsMs8HH0BPlxMCc1-KUsnmYVWPecGl8nuQ==#category=primary";
+
+const PDF_FILE_PATH = "/contracts/ocn_master_agreement_micro_line.pdf";
 
 export default function OfficialContractPage() {
   const clauses = [
@@ -75,7 +82,7 @@ export default function OfficialContractPage() {
         padding: "40px 20px 80px 20px",
       }}
     >
-      <div style={{ maxWidth: "980px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "1040px", margin: "0 auto" }}>
         {/* Top Navigation Bar */}
         <div
           style={{
@@ -104,7 +111,7 @@ export default function OfficialContractPage() {
             }}
           >
             <ArrowLeft style={{ width: "16px", height: "16px" }} />
-            <span>Retour à l&apos;accueil</span>
+            <span>Retour au Site Public</span>
           </Link>
 
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -122,95 +129,237 @@ export default function OfficialContractPage() {
                 borderRadius: "8px",
               }}
             >
-              <span>ID:</span>
+              <span>Contrat Réf :</span>
               <strong style={{ color: "#ffd79a" }}>OCN-ZAKY-2026-v1.2</strong>
             </span>
           </div>
         </div>
 
-        {/* PROTON ENCRYPTED RECORD ALERT BANNER */}
+        {/* PROTON ENCRYPTED EMAIL CERTIFICATE */}
         <div
           style={{
-            background: "linear-gradient(135deg, rgba(109, 40, 217, 0.18) 0%, rgba(212, 163, 89, 0.15) 100%)",
+            background: "linear-gradient(135deg, rgba(109, 40, 217, 0.22) 0%, rgba(212, 163, 89, 0.15) 100%)",
             border: "1px solid rgba(167, 139, 250, 0.4)",
             borderRadius: "16px",
-            padding: "20px 24px",
-            marginBottom: "32px",
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "16px",
+            padding: "24px",
+            marginBottom: "28px",
+            boxShadow: "0 10px 35px rgba(0, 0, 0, 0.5)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "flex-start", gap: "14px", flex: 1, minWidth: "280px" }}>
-            <div
-              style={{
-                width: "44px",
-                height: "44px",
-                borderRadius: "12px",
-                background: "rgba(109, 40, 217, 0.3)",
-                border: "1px solid rgba(167, 139, 250, 0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                color: "#c4b5fd",
-              }}
-            >
-              <Lock style={{ width: "22px", height: "22px" }} />
-            </div>
-            <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              flexWrap: "wrap",
+              gap: "16px",
+              marginBottom: "18px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "14px", flex: 1, minWidth: "280px" }}>
               <div
                 style={{
-                  fontSize: "10.5px",
-                  fontFamily: "monospace",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
+                  width: "46px",
+                  height: "46px",
+                  borderRadius: "12px",
+                  background: "rgba(109, 40, 217, 0.35)",
+                  border: "1px solid rgba(167, 139, 250, 0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
                   color: "#c4b5fd",
-                  fontWeight: 700,
-                  marginBottom: "4px",
                 }}
               >
-                Archive Chiffrée de Bout-en-Bout &bull; ProtonMail Vault
+                <Lock style={{ width: "22px", height: "22px" }} />
               </div>
-              <h2 style={{ fontSize: "16px", fontWeight: 700, margin: 0, color: "#ffffff" }}>
-                Preuve d&apos;Échange & Accord Officiel Chiffré
-              </h2>
-              <p style={{ fontSize: "12.5px", color: "#d8cebe", margin: "4px 0 0 0", lineHeight: 1.4 }}>
-                La version certifiée et les échanges contractuels originaux sont conservés de manière chiffrée sur la
-                boîte Proton sécurisée d&apos;OCN.
-              </p>
+              <div>
+                <div
+                  style={{
+                    fontSize: "10.5px",
+                    fontFamily: "monospace",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    color: "#c4b5fd",
+                    fontWeight: 700,
+                    marginBottom: "4px",
+                  }}
+                >
+                  Preuve de Ratification par E-mail Chiffré &bull; ProtonMail Secure Vault
+                </div>
+                <h2 style={{ fontSize: "17px", fontWeight: 700, margin: 0, color: "#ffffff" }}>
+                  Contrat & Accord Signé Reçu par E-mail
+                </h2>
+                <p style={{ fontSize: "12.5px", color: "#d8cebe", margin: "4px 0 0 0", lineHeight: 1.4 }}>
+                  Transmission officielle et document PDF signé délivrés à la boîte sécurisée d&apos;OCN avec
+                  certificats cryptographiques DKIM &amp; SPF validés.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <a
+                href={PDF_FILE_PATH}
+                download="ocn_master_agreement_micro_line.pdf"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 18px",
+                  background: "linear-gradient(135deg, #d4a359 0%, #b38237 100%)",
+                  border: "none",
+                  borderRadius: "10px",
+                  color: "#1a140d",
+                  fontSize: "12.5px",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  boxShadow: "0 4px 15px rgba(212, 163, 89, 0.35)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <Download style={{ width: "15px", height: "15px" }} />
+                <span>Télécharger le PDF Signé</span>
+              </a>
+
+              <a
+                href={PROTO_CONTRACT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 18px",
+                  background: "linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%)",
+                  border: "1px solid rgba(196, 181, 253, 0.4)",
+                  borderRadius: "10px",
+                  color: "#ffffff",
+                  fontSize: "12.5px",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  boxShadow: "0 4px 15px rgba(109, 40, 217, 0.35)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span>Ouvrir sur ProtonMail</span>
+                <ExternalLink style={{ width: "14px", height: "14px" }} />
+              </a>
             </div>
           </div>
 
-          <a
-            href={PROTO_CONTRACT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          {/* Email Transmission Telemetry Grid */}
+          <div
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "12px 20px",
-              background: "linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%)",
-              border: "1px solid rgba(196, 181, 253, 0.4)",
+              background: "rgba(0, 0, 0, 0.5)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
               borderRadius: "10px",
-              color: "#ffffff",
-              fontSize: "13px",
-              fontWeight: 700,
-              textDecoration: "none",
-              boxShadow: "0 4px 15px rgba(109, 40, 217, 0.4)",
-              whiteSpace: "nowrap",
+              padding: "14px 18px",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "12px",
+              fontSize: "11.5px",
             }}
           >
-            <span>Accéder à l&apos;E-mail Proton Chiffré</span>
-            <ExternalLink style={{ width: "14px", height: "14px" }} />
-          </a>
+            <div>
+              <span style={{ color: "#8e8071", display: "block" }}>Expéditeur (Guide Officiel) :</span>
+              <span style={{ color: "#ffd79a", fontWeight: 600, fontFamily: "monospace" }}>
+                Zaky Bentabaa &lt;zakybentabaa284@gmail.com&gt;
+              </span>
+            </div>
+
+            <div>
+              <span style={{ color: "#8e8071", display: "block" }}>Destinataire (Partenaire Digital) :</span>
+              <span style={{ color: "#c4b5fd", fontWeight: 600, fontFamily: "monospace" }}>
+                ocn.dev &lt;ocn.dev@proton.me&gt;
+              </span>
+            </div>
+
+            <div>
+              <span style={{ color: "#8e8071", display: "block" }}>Date d&apos;Envoi Certifiée :</span>
+              <span style={{ color: "#e8ded2", fontWeight: 600 }}>09 Septembre 2026 à 15:21:53 GMT+1</span>
+            </div>
+
+            <div>
+              <span style={{ color: "#8e8071", display: "block" }}>Vérifications de Sécurité :</span>
+              <span style={{ color: "#86efac", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}>
+                <CheckCircle2 style={{ width: "13px", height: "13px" }} />
+                <span>DKIM: PASS &bull; SPF: PASS &bull; DMARC: PASS</span>
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Main Contract Container */}
+        {/* INTERACTIVE IN-BROWSER PDF VIEWER */}
+        <div
+          style={{
+            background: "rgba(22, 18, 14, 0.9)",
+            border: "1px solid rgba(212, 163, 89, 0.35)",
+            borderRadius: "20px",
+            padding: "24px",
+            marginBottom: "32px",
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.6)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px",
+              flexWrap: "wrap",
+              gap: "10px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FileText style={{ width: "20px", height: "20px", color: "#ffd79a" }} />
+              <h3 style={{ fontSize: "16px", fontWeight: 700, margin: 0, color: "#f5eee4" }}>
+                Visualiseur du Document PDF Signé (ocn_master_agreement_micro_line.pdf)
+              </h3>
+            </div>
+
+            <a
+              href={PDF_FILE_PATH}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "12px",
+                color: "#ffd79a",
+                textDecoration: "none",
+                padding: "6px 12px",
+                borderRadius: "6px",
+                background: "rgba(212, 163, 89, 0.15)",
+                border: "1px solid rgba(212, 163, 89, 0.3)",
+              }}
+            >
+              <span>Plein Écran</span>
+              <ExternalLink style={{ width: "12px", height: "12px" }} />
+            </a>
+          </div>
+
+          <div
+            style={{
+              width: "100%",
+              height: "780px",
+              borderRadius: "12px",
+              overflow: "hidden",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              background: "#120e0a",
+            }}
+          >
+            <iframe
+              title="Contrat Officiel Signé PDF"
+              src={`${PDF_FILE_PATH}#toolbar=1&navpanes=0&scrollbar=1`}
+              width="100%"
+              height="100%"
+              style={{ border: "none" }}
+            />
+          </div>
+        </div>
+
+        {/* Main Contract Container with Articles */}
         <div
           style={{
             background: "rgba(22, 18, 14, 0.85)",
@@ -546,7 +695,7 @@ export default function OfficialContractPage() {
                 Mohamed Zaky Bentabaa
               </div>
               <div style={{ fontSize: "10px", color: "#6a5c4f", fontFamily: "monospace", marginTop: "4px" }}>
-                Guide Officiel Agréé &bull; Marrakech, Maroc
+                Guide Touristique Agréé &bull; Marrakech, Maroc
               </div>
             </div>
           </div>

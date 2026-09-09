@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { getZakySession } from "@/lib/auth";
+import { getOcnSession } from "@/lib/ocn-auth";
 import { prisma } from "@/lib/db";
 
 export async function POST(req: Request) {
   try {
-    const session = await getZakySession();
-    if (!session) {
+    const zakySession = await getZakySession();
+    const ocnSession = await getOcnSession();
+    if (!zakySession && !ocnSession) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -26,6 +28,7 @@ export async function POST(req: Request) {
     const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_").toLowerCase();
     const filename = `${Date.now()}-${safeName}`;
     const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await mkdir(uploadDir, { recursive: true });
     const filePath = path.join(uploadDir, filename);
 
     await writeFile(filePath, buffer);
@@ -35,10 +38,13 @@ export async function POST(req: Request) {
     // If slotKey provided, update database immediately
     let updatedImage = null;
     if (slotKey) {
-      updatedImage = await prisma.siteImage.update({
-        where: { slotKey },
-        data: { url: publicUrl },
-      });
+      const exists = await prisma.siteImage.findUnique({ where: { slotKey } });
+      if (exists) {
+        updatedImage = await prisma.siteImage.update({
+          where: { slotKey },
+          data: { url: publicUrl },
+        });
+      }
     }
 
     return NextResponse.json({

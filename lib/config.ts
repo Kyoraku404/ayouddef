@@ -25,6 +25,12 @@ export const siteConfig = {
     email: process.env.CONTACT_EMAIL || "contact@marrakeshitourguide.com",
     adminEmail: process.env.ADMIN_EMAIL || "admin@marrakeshitourguide.com",
   },
+  agency: {
+    name: "OCN",
+    role: "Digital Engineering & Creative Development",
+    client: "Mohamed Zaky Bentabaa (Zaky)",
+    website: "https://ocndev.vercel.app/",
+  },
   heroImage: process.env.HERO_IMAGE || "",
 };
 

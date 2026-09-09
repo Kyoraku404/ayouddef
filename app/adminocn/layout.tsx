@@ -21,6 +21,7 @@ import {
   Building2,
   Sun,
   Moon,
+  ImageIcon,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -66,6 +67,7 @@ export default function OcnAdminLayout({ children }: LayoutProps) {
   const navItems = [
     { label: "Overview", href: "/adminocn", icon: LayoutDashboard },
     { label: "Website Analytics", href: "/adminocn/analytics", icon: BarChart3 },
+    { label: "Global Site Images", href: "/adminocn/images", icon: ImageIcon },
     { label: "Bookings", href: "/adminocn/bookings", icon: CalendarCheck },
     { label: "Revenue Tracking", href: "/adminocn/revenue", icon: DollarSign },
     { label: "Financial & Settlements", href: "/adminocn/settlements", icon: Landmark },

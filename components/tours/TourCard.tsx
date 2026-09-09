@@ -3,6 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { Tour } from "@/lib/types";
+import { useCurrency } from "@/components/common/CurrencyProvider";
+import { useLanguage } from "@/components/common/LanguageProvider";
 
 interface TourCardProps {
   tour: Tour;
@@ -69,6 +71,9 @@ export function TourIcon({ type }: { type: Tour["icon"] }) {
 }
 
 export function TourCard({ tour }: TourCardProps) {
+  const { formatPrice } = useCurrency();
+  const { t } = useLanguage();
+
   return (
     <article className="tour-card">
       <Link href={`/tours/${tour.slug}`} className={`tour-photo ${tour.cls}`} tabIndex={-1}>
@@ -89,10 +94,15 @@ export function TourCard({ tour }: TourCardProps) {
           </Link>
         </h3>
         {tour.price && (
-          <div className="flex items-center gap-2 my-2 text-xs font-semibold">
+          <div className="flex flex-wrap items-center gap-2 my-2 text-xs font-semibold">
             <span className="bg-sand px-2.5 py-1 rounded-full text-terracotta-dark">
-              {tour.price} — Private
+              {formatPrice(tour.price)} — {t.tours.privateTour}
             </span>
+            {tour.badge && (
+              <span className="bg-terracotta text-cream text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full">
+                {tour.badge}
+              </span>
+            )}
             <span className="text-ink/70">{tour.duration}</span>
           </div>
         )}
@@ -101,7 +111,7 @@ export function TourCard({ tour }: TourCardProps) {
           href={`/tours/${tour.slug}`}
           className="btn btn-dark"
         >
-          Discover More
+          {t.tours.discoverMore}
         </Link>
       </div>
     </article>

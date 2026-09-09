@@ -9,6 +9,9 @@ export async function GET() {
   }
 
   const admin = await getOcnAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: "Admin not found" }, { status: 404 });
+  }
 
   return NextResponse.json({
     user: {

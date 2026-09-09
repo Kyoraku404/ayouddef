@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Loader2, CheckCircle2, MessageCircle } from "lucide-react";
 import { getWhatsAppReservationUrl } from "@/lib/whatsapp";
 import { trackWhatsAppClick } from "@/lib/analytics-client";
+import { useLanguage } from "@/components/common/LanguageProvider";
 
 const tourOptions = [
   "Marrakesh Medina, Souks & Heritage Experience",
@@ -21,6 +22,7 @@ interface ReservationSectionProps {
 }
 
 export function ReservationSection({ selectedTour }: ReservationSectionProps) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -85,11 +87,9 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
       <div className="container-custom res-grid">
         {/* Left Column: Info & Contact List */}
         <div className="res-info">
-          <span className="eyebrow">Reservation</span>
-          <h2>Plan your Marrakesh day with Zaky</h2>
-          <p>
-            Tell Zaky what you&apos;d like to see and when — he&apos;ll confirm your tour personally, usually within a few hours.
-          </p>
+          <span className="eyebrow">{t.reservation.eyebrow}</span>
+          <h2>{t.reservation.title}</h2>
+          <p>{t.reservation.subtitle}</p>
 
           <div className="contact-list" id="contact">
             <a
@@ -138,11 +138,11 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
               </div>
 
               <h3 style={{ fontSize: "1.6rem", marginBottom: "12px" }}>
-                Request Sent Successfully!
+                {t.reservation.successTitle}
               </h3>
 
               <p style={{ color: "var(--brown-soft)", fontSize: "0.98rem", marginBottom: "20px" }}>
-                Thank you, <strong>{formData.fullName}</strong>. Zaky has received your inquiry for the <strong>{formData.tour}</strong>.
+                {t.reservation.successMsg.replace("{tour}", formData.tour)}
               </p>
 
               {/* Required confirmation notice */}
@@ -161,7 +161,7 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
                 <strong style={{ color: "var(--terracotta-dark)", display: "block", marginBottom: "4px" }}>
                   Notice of Confirmation:
                 </strong>
-                Please note that your reservation is an inquiry request and is <strong>not confirmed</strong> until Zaky confirms availability and verifies timing with you directly.
+                {t.reservation.reassurance}
               </div>
 
               <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
@@ -174,7 +174,7 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
                   onClick={(e) => trackWhatsAppClick("reservation_success_continue", getWhatsAppReservationUrl(formData), e)}
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Continue on WhatsApp</span>
+                  <span>{t.reservation.whatsAppDirect}</span>
                 </a>
 
                 <button
@@ -201,26 +201,26 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
             <form className="form-card" id="resForm" onSubmit={handleSubmit} noValidate>
               <div className="form-row two">
                 <div className="field">
-                  <label htmlFor="fullName">Full Name</label>
+                  <label htmlFor="fullName">{t.reservation.nameLabel}</label>
                   <input
                     type="text"
                     id="fullName"
                     name="fullName"
                     required
-                    placeholder="e.g. Sarah Jenkins"
+                    placeholder={t.reservation.namePlaceholder}
                     value={formData.fullName}
                     onChange={handleChange}
                   />
                 </div>
 
                 <div className="field">
-                  <label htmlFor="email">Email</label>
+                  <label htmlFor="email">{t.reservation.emailLabel}</label>
                   <input
                     type="email"
                     id="email"
                     name="email"
                     required
-                    placeholder="e.g. sarah@example.com"
+                    placeholder={t.reservation.emailPlaceholder}
                     value={formData.email}
                     onChange={handleChange}
                   />
@@ -229,20 +229,20 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
 
               <div className="form-row two">
                 <div className="field">
-                  <label htmlFor="phone">Phone / WhatsApp</label>
+                  <label htmlFor="phone">{t.reservation.phoneLabel}</label>
                   <input
                     type="tel"
                     id="phone"
                     name="phone"
                     required
-                    placeholder="+1 555 123 4567"
+                    placeholder={t.reservation.phonePlaceholder}
                     value={formData.phone}
                     onChange={handleChange}
                   />
                 </div>
 
                 <div className="field">
-                  <label htmlFor="date">Preferred Date</label>
+                  <label htmlFor="date">{t.reservation.dateLabel}</label>
                   <input
                     type="date"
                     id="date"
@@ -256,7 +256,7 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
 
               <div className="form-row two">
                 <div className="field">
-                  <label htmlFor="people">Number of People</label>
+                  <label htmlFor="people">{t.reservation.guestsLabel}</label>
                   <select
                     id="people"
                     name="people"
@@ -272,7 +272,7 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
                 </div>
 
                 <div className="field">
-                  <label htmlFor="tour">Select a Tour</label>
+                  <label htmlFor="tour">{t.reservation.tourLabel}</label>
                   <select
                     id="tour"
                     name="tour"
@@ -289,11 +289,11 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
               </div>
 
               <div className="field">
-                <label htmlFor="message">Message or Special Interests</label>
+                <label htmlFor="message">{t.reservation.messageLabel}</label>
                 <textarea
                   id="message"
                   name="message"
-                  placeholder="Tell Zaky what you'd like to see, dietary requests, schedule constraints, etc."
+                  placeholder={t.reservation.messagePlaceholder}
                   value={formData.message}
                   onChange={handleChange}
                 />
@@ -314,10 +314,10 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Submitting Request...</span>
+                    <span>{t.reservation.submitting}</span>
                   </>
                 ) : (
-                  <span>Submit Reservation Request</span>
+                  <span>{t.reservation.submitBtn}</span>
                 )}
               </button>
             </form>

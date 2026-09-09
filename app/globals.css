@@ -1,3 +1,9 @@
+/*!
+ * Marrakeshi Tour Guide — Official Web Application
+ * Made by OCN
+ * All Rights Reserved
+ */
+
 @import "tailwindcss";
 
 @theme {
@@ -154,22 +160,29 @@ header.site-header.solid {
   box-shadow: 0 4px 20px -8px rgba(43, 30, 21, 0.15);
 }
 
+.site-header .container-custom {
+  max-width: 1280px;
+}
+
 .nav-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
 }
 
 .brand {
   font-family: var(--font-heading), 'Fraunces', serif;
   font-weight: 600;
-  font-size: 1.25rem;
+  font-size: 1.22rem;
   color: var(--cream);
   letter-spacing: -0.02em;
   display: flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-mark {
@@ -194,15 +207,23 @@ header.site-header.solid .brand-mark {
 
 nav.links {
   display: none;
-  gap: 34px;
+  gap: 22px;
   align-items: center;
+  margin: 0 auto;
+}
+
+@media (min-width: 1200px) {
+  nav.links {
+    gap: 30px;
+  }
 }
 
 nav.links a {
   color: var(--cream);
   font-weight: 500;
-  font-size: .96rem;
+  font-size: .95rem;
   position: relative;
+  white-space: nowrap;
   transition: color .2s ease;
 }
 
@@ -228,7 +249,8 @@ header.site-header.solid nav.links a {
 .nav-cta-wrap {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .nav-cta {
@@ -306,7 +328,7 @@ header.site-header.solid .burger span {
   font-weight: 500;
 }
 
-@media(min-width: 860px) {
+@media(min-width: 1024px) {
   nav.links {
     display: flex;
   }

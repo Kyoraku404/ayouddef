@@ -1,3 +1,9 @@
+/**
+ * Marrakeshi Tour Guide — Official Web Application
+ * Made by OCN
+ * All Rights Reserved
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -25,6 +31,13 @@ export default function HomePage() {
     founder: {
       "@type": "Person",
       name: "Zaky",
+      jobTitle: "Licensed Tour Guide",
+    },
+    creator: {
+      "@type": "Organization",
+      name: "OCN",
+      url: "https://ocndev.vercel.app/",
+      description: "Digital Agency & Web Solutions",
     },
     areaServed: "Marrakesh, Morocco",
     address: {

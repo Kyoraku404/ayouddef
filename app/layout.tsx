@@ -16,11 +16,19 @@ const workSans = Work_Sans({
   display: "swap",
 });
 
+/**
+ * Marrakeshi Tour Guide — Official Web Application
+ * Made by OCN
+ * All Rights Reserved
+ */
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.urls.site),
   title: "Marrakeshi Tour Guide by Zaky | Marrakesh Private Tours",
   description:
     "Discover Marrakesh with local guide Zaky. Enjoy authentic private tours, Medina experiences, souks, culture, history, and customized Marrakesh tours.",
+  generator: "OCN",
+  applicationName: "Marrakeshi Tour Guide",
   keywords: [
     "Marrakesh tour guide",
     "Marrakesh private tour",
@@ -29,9 +37,14 @@ export const metadata: Metadata = {
     "Morocco tour guide",
     "private Marrakesh guide",
   ],
-  authors: [{ name: "Zaky" }],
-  creator: "Zaky",
-  publisher: "Marrakeshi Tour Guide",
+  authors: [{ name: "OCN", url: "https://ocndev.vercel.app/" }, { name: "Zaky" }],
+  creator: "OCN",
+  publisher: "OCN",
+  other: {
+    "developer": "Made by OCN",
+    "agency": "OCN",
+    "client": "Zaky",
+  },
   alternates: {
     canonical: "/",
   },
@@ -78,6 +91,9 @@ export const metadata: Metadata = {
 };
 
 import { SiteImagesProvider } from "@/components/common/SiteImagesProvider";
+import { CurrencyProvider } from "@/components/common/CurrencyProvider";
+import { LanguageProvider } from "@/components/common/LanguageProvider";
+import { MarrakechChatbot } from "@/components/chatbot/MarrakechChatbot";
 
 export default function RootLayout({
   children,
@@ -88,9 +104,14 @@ export default function RootLayout({
     <html lang="en" className={`${fraunces.variable} ${workSans.variable}`}>
       <body className="bg-cream text-ink antialiased min-h-screen selection:bg-sand selection:text-brown">
         <PageAnalyticsTracker />
-        <SiteImagesProvider>
-          {children}
-        </SiteImagesProvider>
+        <LanguageProvider>
+          <CurrencyProvider>
+            <SiteImagesProvider>
+              {children}
+              <MarrakechChatbot />
+            </SiteImagesProvider>
+          </CurrencyProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ZakyLoginPage() {
   const router = useRouter();
@@ -201,7 +202,7 @@ export default function ZakyLoginPage() {
           borderTop: "1px solid rgba(255, 255, 255, 0.08)",
           textAlign: "center"
         }}>
-          <a
+          <Link
             href="/"
             style={{
               fontSize: "12px",
@@ -210,7 +211,7 @@ export default function ZakyLoginPage() {
             }}
           >
             ← Return to public website
-          </a>
+          </Link>
         </div>
       </div>
     </div>

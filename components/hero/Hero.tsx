@@ -4,11 +4,13 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
 import { useSiteImages } from "@/components/common/SiteImagesProvider";
+import { useLanguage } from "@/components/common/LanguageProvider";
 
 export function Hero() {
   const [mounted, setMounted] = useState(false);
   const { getImage } = useSiteImages();
   const heroImage = getImage("hero_main", "/images/hero.jpg");
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Reveal hero elements with single orchestrated transition
@@ -40,23 +42,23 @@ export function Hero() {
       <div className="container-custom">
         <div className="hero-content">
           <span className={`eyebrow hero-fade ${mounted ? "show" : ""}`}>
-            Marrakesh, Morocco
+            {t.hero.badge}
           </span>
 
           <h1 className={`hero-fade ${mounted ? "show" : ""}`}>
-            Discover Marrakesh with a Local Guide
+            {t.hero.title} <span style={{ color: "var(--terracotta)" }}>{t.hero.titleAccent}</span>
           </h1>
 
           <p className={`sub hero-fade ${mounted ? "show" : ""}`}>
-            Authentic experiences, unforgettable memories, and the real Marrakesh with Zaky.
+            {t.hero.subtitle}
           </p>
 
           <div className={`hero-ctas hero-fade ${mounted ? "show" : ""}`}>
             <a href="#tours" className="btn btn-primary">
-              Discover More
+              {t.hero.exploreTours}
             </a>
             <a href="#reservation" className="btn btn-ghost">
-              Reservation
+              {t.hero.bookTour}
             </a>
           </div>
         </div>

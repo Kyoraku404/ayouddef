@@ -772,7 +772,7 @@ export async function getOcnAuditLogs(limit: number = 100) {
     entityId: l.entityId || undefined,
     clientId: l.clientId || undefined,
     performedBy: l.performedBy,
-    details: l.details as Record<string, any>,
+    details: l.details as Record<string, unknown>,
     ipAddress: l.ipAddress || undefined,
     createdAt: l.createdAt.toISOString(),
   }));
@@ -784,7 +784,7 @@ export async function logOcnAudit(entry: {
   entityId?: string;
   clientId?: string;
   performedBy: string;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   ipAddress?: string;
 }) {
   return await prisma.auditLog.create({
@@ -794,7 +794,7 @@ export async function logOcnAudit(entry: {
       entityId: entry.entityId,
       clientId: entry.clientId,
       performedBy: entry.performedBy,
-      details: entry.details,
+      details: entry.details as Prisma.InputJsonValue,
       ipAddress: entry.ipAddress,
     },
   });
@@ -809,7 +809,7 @@ export async function recordOcnAnalyticsEvent(event: {
   page: string;
   referrer?: string;
   userAgent?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }) {
   // Resolve website and client in PostgreSQL
   let website = null;
@@ -835,7 +835,7 @@ export async function recordOcnAnalyticsEvent(event: {
       page: event.page,
       referrer: event.referrer || null,
       userAgent: event.userAgent || null,
-      metadata: event.metadata || null,
+      metadata: event.metadata ? (event.metadata as Prisma.InputJsonValue) : undefined,
     },
   });
 }

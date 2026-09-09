@@ -144,7 +144,7 @@ export default function OcnContractsPage() {
           </div>
           <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
             <span className="text-[10px] text-slate-400 uppercase font-mono block">Brand Standards</span>
-            <span className="text-sm font-bold text-slate-200 font-mono mt-0.5 block">Strict "Marrakesh" spelling</span>
+            <span className="text-sm font-bold text-slate-200 font-mono mt-0.5 block">Strict &quot;Marrakesh&quot; spelling</span>
           </div>
         </div>
       </div>

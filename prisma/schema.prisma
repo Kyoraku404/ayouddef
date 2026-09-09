@@ -295,3 +295,47 @@ model SiteImage {
 
   @@index([section])
 }
+
+model TourPackage {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  subtitle    String?
+  price       String   // e.g. "700 MAD"
+  priceNote   String?  // e.g. "700 MAD per private group, up to 10 guests"
+  duration    String?  // e.g. "3–4 hours"
+  groupType   String?  // e.g. "1–10 guests | Private Tour"
+  languages   String?  // e.g. "English, French, Arabic"
+  badge       String?  // e.g. "Most Popular"
+  description String?  @db.Text
+  highlights  String?  @db.Text
+  included    String?  @db.Text
+  notIncluded String?  @db.Text
+  itinerary   String?  @db.Text // JSON string of itinerary stops [{ stopNumber, name, duration, description, lat, lng }]
+  mapCenter   String?  // JSON string of { lat, lng, zoom }
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GuideBio {
+  id              String   @id @default("guide_zaky")
+  name            String   @default("Zaky")
+  fullName        String   @default("Mohamed Zaky Bentabaa")
+  eyebrow         String   @default("Meet your guide")
+  title           String   @default("Licensed Tour Guide in Marrakesh")
+  bioP1           String   @db.Text
+  bioP2           String   @db.Text
+  bioP3           String   @db.Text
+  bioP4           String   @db.Text
+  signoff         String   @default("Welcome to Marrakesh — let me show you my Morocco.")
+  rating          String   @default("5.0★")
+  reviewsCount    String   @default("41")
+  experienceYears String   @default("19")
+  signatureTours  String   @default("7")
+  languages       String   @default("Arabic, French, English")
+  badgeText       String   @default("41 verified Google reviews")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

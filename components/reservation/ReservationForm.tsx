@@ -24,6 +24,7 @@ interface ReservationFormProps {
 }
 
 export function ReservationForm({ selectedTour }: ReservationFormProps) {
+  const [tourList, setTourList] = useState(toursData);
   const [formData, setFormData] = useState<ReservationInput>({
     fullName: "",
     email: "",
@@ -38,6 +39,17 @@ export function ReservationForm({ selectedTour }: ReservationFormProps) {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    fetch("/api/tours")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.tours) && data.tours.length > 0) {
+          setTourList(data.tours);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Synchronize when parent passes updated selectedTour
   React.useEffect(() => {
@@ -326,9 +338,9 @@ export function ReservationForm({ selectedTour }: ReservationFormProps) {
                 errors.tour ? "border-red-400 focus:border-red-500" : "border-sand focus:border-terracotta"
               }`}
             >
-              {toursData.map((t) => (
+              {tourList.map((t) => (
                 <option key={t.id} value={t.title}>
-                  {t.title}
+                  {t.title} {t.price ? `(${t.price})` : ""}
                 </option>
               ))}
             </select>

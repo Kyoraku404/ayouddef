@@ -54,6 +54,7 @@ export interface Tour {
     zoom: number;
   };
   getYourGuideUrl?: string;
+  badge?: string;
 }
 
 export interface Review {

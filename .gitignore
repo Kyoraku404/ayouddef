@@ -44,3 +44,6 @@ next-env.d.ts
 *.db
 .dev_ocn_store.json
 .dev_reservations_fallback.json
+
+.vercel
+.env*

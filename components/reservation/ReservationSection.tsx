@@ -6,7 +6,7 @@ import { getWhatsAppReservationUrl } from "@/lib/whatsapp";
 import { trackWhatsAppClick } from "@/lib/analytics-client";
 import { useLanguage } from "@/components/common/LanguageProvider";
 
-const tourOptions = [
+const FALLBACK_TOUR_OPTIONS = [
   "Marrakesh Medina, Souks & Heritage Experience",
   "Marrakesh Souks & Local Markets Experience",
   "Marrakesh Historical & Cultural Heritage Tour",
@@ -17,19 +17,46 @@ const tourOptions = [
   "General Inquiry / Custom Itinerary",
 ];
 
+interface LiveTourOption {
+  slug: string;
+  title: string;
+  price?: string;
+}
+
+function resolveTourTitle(value: string | undefined, live: LiveTourOption[]): string | null {
+  if (!value) return null;
+  const v = value.trim().toLowerCase();
+  if (!v) return null;
+  // Match by slug first, then by exact/partial title.
+  const bySlug = live.find((t) => t.slug.toLowerCase() === v);
+  if (bySlug) return bySlug.title;
+  const byTitle = live.find((t) => t.title.toLowerCase() === v);
+  if (byTitle) return byTitle.title;
+  const partial = live.find(
+    (t) => t.title.toLowerCase().includes(v) || v.includes(t.title.toLowerCase())
+  );
+  if (partial) return partial.title;
+  const fallback = FALLBACK_TOUR_OPTIONS.find((t) => t.toLowerCase() === v);
+  if (fallback) return fallback;
+  // Accept raw value when it looks like a real title (e.g. deep link before tours load).
+  if (value.trim().length >= 4) return value.trim();
+  return null;
+}
+
 interface ReservationSectionProps {
   selectedTour?: string;
 }
 
 export function ReservationSection({ selectedTour }: ReservationSectionProps) {
   const { t } = useLanguage();
+  const [liveTours, setLiveTours] = useState<LiveTourOption[]>([]);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
     date: "",
     people: 2,
-    tour: selectedTour || tourOptions[0],
+    tour: selectedTour || FALLBACK_TOUR_OPTIONS[0],
     message: "",
   });
 
@@ -37,12 +64,52 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Sync selectedTour prop if updated
+  // Load live pack titles/prices so admin price edits are reflected here.
+  React.useEffect(() => {
+    fetch("/api/tours")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.tours) && data.tours.length > 0) {
+          setLiveTours(
+            data.tours.map((tour: { slug: string; title: string; price?: string }) => ({
+              slug: tour.slug,
+              title: tour.title,
+              price: tour.price,
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const tourOptions =
+    liveTours.length > 0
+      ? [...liveTours.map((tour) => tour.title), "General Inquiry / Custom Itinerary"]
+      : FALLBACK_TOUR_OPTIONS;
+
+  // Sync selectedTour prop (slug or title) if updated.
   React.useEffect(() => {
     if (selectedTour) {
-      setFormData((prev) => ({ ...prev, tour: selectedTour }));
+      const resolved = resolveTourTitle(selectedTour, liveTours) || selectedTour;
+      setFormData((prev) => (prev.tour === resolved ? prev : { ...prev, tour: resolved }));
     }
-  }, [selectedTour]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTour, liveTours.length]);
+
+  // Deep-link support: /?tour=<slug-or-title>#reservation preselects the pack.
+  React.useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const tourParam = params.get("tour");
+      if (tourParam) {
+        const resolved =
+          resolveTourTitle(decodeURIComponent(tourParam), liveTours) ||
+          decodeURIComponent(tourParam);
+        setFormData((prev) => (prev.tour === resolved ? prev : { ...prev, tour: resolved }));
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveTours.length]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -188,7 +255,7 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
                       phone: "",
                       date: "",
                       people: 2,
-                      tour: tourOptions[0],
+                      tour: selectedTour || FALLBACK_TOUR_OPTIONS[0],
                       message: "",
                     });
                   }}

@@ -10,7 +10,7 @@ export function Hero() {
   const [mounted, setMounted] = useState(false);
   const { getImage } = useSiteImages();
   const heroImage = getImage("hero_main", "/images/hero.jpg");
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     // Reveal hero elements with single orchestrated transition
@@ -46,7 +46,15 @@ export function Hero() {
           </span>
 
           <h1 className={`hero-fade ${mounted ? "show" : ""}`}>
-            {t.hero.title} <span style={{ color: "var(--terracotta)" }}>{t.hero.titleAccent}</span>
+            {t.hero.title}
+            {t.hero.titleAccent ? (
+              <>
+                {" "}
+                <span style={{ color: "var(--terracotta)" }}>
+                  {t.hero.titleAccent}
+                </span>
+              </>
+            ) : null}
           </h1>
 
           <p className={`sub hero-fade ${mounted ? "show" : ""}`}>
@@ -56,6 +64,9 @@ export function Hero() {
           <div className={`hero-ctas hero-fade ${mounted ? "show" : ""}`}>
             <a href="#tours" className="btn btn-primary">
               {t.hero.exploreTours}
+            </a>
+            <a href="#gallery" className="btn btn-ghost">
+              {language === "fr" ? "Voir la Galerie" : language === "es" ? "Ver Galería" : "View Gallery"}
             </a>
             <a href="#reservation" className="btn btn-ghost">
               {t.hero.bookTour}

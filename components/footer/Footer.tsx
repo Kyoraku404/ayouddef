@@ -53,6 +53,15 @@ export function Footer() {
                 </svg>
               </a>
             </div>
+
+            <div className="mt-4 pt-3 border-t border-sand/10 flex items-center gap-1.5 text-xs text-sand-soft/70">
+              <span>Made by</span>
+              <span
+                className="text-gold font-bold tracking-wide"
+              >
+                Zaky
+              </span>
+            </div>
           </div>
 
           {/* Column 2: Explore */}
@@ -61,68 +70,52 @@ export function Footer() {
             <a href="#home">{t.nav.home}</a>
             <a href="#about">{t.nav.about}</a>
             <a href="#tours">{t.nav.tours}</a>
+            <a href="#gallery">{t.nav.gallery}</a>
             <a href="#reviews">{t.nav.reviews}</a>
           </div>
 
-          {/* Column 3: Book */}
+          {/* Column 3: Signature Tours */}
           <div className="foot-col">
             <h4>{t.footer.experiences}</h4>
-            <Link href="/#tours">{t.nav.cta}</Link>
-            <Link href="/#reservation">{t.nav.reservation}</Link>
-            <a
-              href="https://wa.me/212661176369"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => trackWhatsAppClick("footer_book_link", "https://wa.me/212661176369", e)}
-            >
-              WhatsApp
-            </a>
+            <Link href="/tours/marrakesh-medina-tour">Medina Heritage Tour</Link>
+            <Link href="/tours/souks-local-markets">Souks & Craft Markets</Link>
+            <Link href="/tours/marrakesh-by-night">Marrakesh by Night</Link>
+            <Link href="/tours/atlas-mountains-three-valleys">Atlas Mountains Day Trip</Link>
+            <Link href="/#tours">All Private Tours</Link>
           </div>
 
           {/* Column 4: Contact */}
           <div className="foot-col">
             <h4>{t.footer.contactDirect}</h4>
             <a href="mailto:hello@marrakeshitourguide.com">hello@marrakeshitourguide.com</a>
-            <a href="#">Medina, Marrakesh</a>
+            <span className="text-sand-soft/80 block text-sm">Medina, Marrakesh, Morocco</span>
             <Link
               href="/adminzaky"
-              className="text-xs text-sand-soft/60 hover:text-sand-soft transition-colors"
+              className="text-xs text-sand-soft/60 hover:text-sand-soft transition-colors mt-1 block"
             >
               Guide Portal
             </Link>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="foot-bottom flex flex-wrap items-center justify-between gap-4">
-          <span>{t.footer.rights}</span>
-          <div className="flex items-center gap-3">
+        {/* Bottom Bar: Positioned above and clear of floating AI widget */}
+        <div className="foot-bottom flex flex-col md:flex-row items-center justify-between gap-4 pt-6 pb-24 sm:pb-16 border-t border-sand/10">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left text-xs sm:text-sm text-sand/60">
+            <span>{t.footer.rights}</span>
+            <span className="hidden sm:inline text-sand/30">•</span>
             <span>{t.footer.tagline}</span>
-            <span className="text-sand/30">•</span>
-            <a
-              href="https://ocndev.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-sand-soft/80 hover:text-white transition-all font-medium tracking-wide group"
-              title="Visit OCN Agency — https://ocndev.vercel.app/"
+          </div>
+
+          {/* Made by Zaky Badge with safe right margin on desktop */}
+          <div className="flex items-center gap-2 md:mr-48 z-10">
+            <span
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sand-soft/10 border border-gold/40 text-xs text-sand-soft font-medium tracking-wide shadow-xs"
             >
               <span>Made by</span>
-              <strong className="text-gold group-hover:text-amber-300 font-bold tracking-wider underline underline-offset-4 decoration-gold/40 group-hover:decoration-amber-300 transition-colors">
-                OCN
+              <strong className="text-gold font-bold tracking-wider">
+                Zaky
               </strong>
-              <svg
-                className="w-3 h-3 text-gold/70 group-hover:text-amber-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M7 17L17 7M17 7H7M17 7V17" />
-              </svg>
-            </a>
+            </span>
           </div>
         </div>
       </div>

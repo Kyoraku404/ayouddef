@@ -754,7 +754,7 @@ export const toursData: Tour[] = [
     ],
     mapCenter: { lat: 31.6280, lng: -7.9880, zoom: 15 },
     included: [
-      "Licensed guide services exclusively for your private party (Zaky)",
+      "Official guide services exclusively for your private party (Zaky)",
       "Pre-trip consultation via WhatsApp or email to craft your itinerary",
       "Hotel or riad pickup in central Marrakesh",
       "Total flexibility during the tour",

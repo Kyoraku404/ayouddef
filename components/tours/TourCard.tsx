@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Tour } from "@/lib/types";
 import { useCurrency } from "@/components/common/CurrencyProvider";
@@ -70,23 +71,58 @@ export function TourIcon({ type }: { type: Tour["icon"] }) {
   }
 }
 
-export function TourCard({ tour }: TourCardProps) {
+export function TourCard({ tour, onSelectTour }: TourCardProps) {
   const { formatPrice } = useCurrency();
   const { t } = useLanguage();
 
+  const handleBookClick = () => {
+    if (onSelectTour) {
+      onSelectTour(tour.title);
+    }
+    // Keep the slug in the URL so the reservation section can preselect
+    // the pack even after a full page reload / direct navigation.
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("tour", tour.slug);
+      window.history.replaceState(null, "", `${url.pathname}?${url.searchParams.toString()}#reservation`);
+    } catch {}
+    requestAnimationFrame(() => {
+      document.getElementById("reservation")?.scrollIntoView({ behavior: "smooth" });
+    });
+  };
+
   return (
     <article className="tour-card">
-      <Link href={`/tours/${tour.slug}`} className={`tour-photo ${tour.cls}`} tabIndex={-1}>
-        <svg
-          viewBox="0 0 64 64"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
+      {tour.cardImage ? (
+        <Link
+          href={`/tours/${tour.slug}`}
+          className="tour-photo tour-photo-img"
+          tabIndex={-1}
+          aria-label={tour.title}
         >
-          <TourIcon type={tour.icon} />
-        </svg>
-      </Link>
+          <Image
+            src={tour.cardImage}
+            alt={tour.title}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1020px) 50vw, 33vw"
+            className="tour-cover-img"
+            unoptimized={tour.cardImage.startsWith("/uploads") || tour.cardImage.startsWith("http")}
+          />
+          <span className="tour-cover-scrim" aria-hidden="true" />
+        </Link>
+      ) : (
+        <Link href={`/tours/${tour.slug}`} className={`tour-photo ${tour.cls}`} tabIndex={-1}>
+          <svg
+            viewBox="0 0 64 64"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <TourIcon type={tour.icon} />
+          </svg>
+        </Link>
+      )}
       <div className="tour-body">
         <h3>
           <Link href={`/tours/${tour.slug}`} className="hover:text-terracotta transition-colors">
@@ -107,12 +143,29 @@ export function TourCard({ tour }: TourCardProps) {
           </div>
         )}
         <p>{tour.description}</p>
-        <Link
-          href={`/tours/${tour.slug}`}
-          className="btn btn-dark"
-        >
-          {t.tours.discoverMore}
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-2 mt-1">
+          <Link
+            href={`/tours/${tour.slug}`}
+            className="btn btn-dark flex-1 justify-center"
+          >
+            {t.tours.discoverMore}
+          </Link>
+          <Link
+            href={`/?tour=${encodeURIComponent(tour.slug)}#reservation`}
+            onClick={(e) => {
+              // On the homepage, preselect instantly + smooth scroll without reload.
+              if (window.location.pathname === "/") {
+                e.preventDefault();
+                handleBookClick();
+              } else if (onSelectTour) {
+                onSelectTour(tour.title);
+              }
+            }}
+            className="btn btn-primary flex-1 justify-center"
+          >
+            Book
+          </Link>
+        </div>
       </div>
     </article>
   );

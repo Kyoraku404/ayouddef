@@ -8,7 +8,7 @@ export const siteConfig = {
   subheadline: "Authentic experiences, unforgettable memories, and the real Marrakesh with Zaky.",
   establishedYear: 2007,
   education: "Master's degree in Tourism Management",
-  positioning: "Licensed, second-generation Marrakesh tour guide",
+  positioning: "Official second-generation Marrakesh tour guide",
   languages: ["Arabic", "French", "English"],
   stats: {
     googleRating: "5.0",
@@ -16,7 +16,10 @@ export const siteConfig = {
     tourExperiencesCount: 7,
   },
   urls: {
-    site: process.env.NEXT_PUBLIC_SITE_URL || "https://marrakeshitourguide.com",
+    site:
+      process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")
+        ? process.env.NEXT_PUBLIC_SITE_URL
+        : "https://marrakeshi-guide.vercel.app",
     getYourGuide: process.env.NEXT_PUBLIC_GETYOURGUIDE_URL || "",
     whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "212600000000",
     instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "",
@@ -26,10 +29,10 @@ export const siteConfig = {
     adminEmail: process.env.ADMIN_EMAIL || "admin@marrakeshitourguide.com",
   },
   agency: {
-    name: "OCN",
-    role: "Digital Engineering & Creative Development",
+    name: "Zaky",
+    role: "Official Marrakesh Tour Guide",
     client: "Mohamed Zaky Bentabaa (Zaky)",
-    website: "https://ocndev.vercel.app/",
+    website: "https://marrakeshi-guide.vercel.app/",
   },
   heroImage: process.env.HERO_IMAGE || "",
 };

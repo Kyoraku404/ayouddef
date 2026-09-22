@@ -307,11 +307,24 @@ model TourPackage {
   groupType   String?  // e.g. "1–10 guests | Private Tour"
   languages   String?  // e.g. "English, French, Arabic"
   badge       String?  // e.g. "Most Popular"
-  description String?  @db.Text
+  description String?  @db.Text // LEGACY: kept as fallback only. Do not write new content here.
+  // Card Description: short text shown ONLY on the main Tours page card.
+  // Fully independent from fullDescription — editing one never touches the other.
+  cardDescription String? @db.Text
+  // Full Tour Description: detailed paragraphs shown ONLY on the individual
+  // tour detail page (after "Discover More"). Paragraphs separated by blank lines.
+  fullDescription String? @db.Text
+  // Card visual: icon name (gate|basket|palace|tea|monument|compass|road)
+  // and gradient theme class (t1..t7). Editable per tour from admin.
+  icon        String?
+  cls         String?
+  // Card cover photo shown on the main Tours page card. When set, it replaces
+  // the icon/gradient visual. Managed per tour from the admin panel.
+  cardImage   String?
   highlights  String?  @db.Text
   included    String?  @db.Text
   notIncluded String?  @db.Text
-  itinerary   String?  @db.Text // JSON string of itinerary stops [{ stopNumber, name, duration, description, lat, lng }]
+  itinerary   String?  // JSON string of itinerary stops [{ stopNumber, name, duration, description, lat, lng }]
   mapCenter   String?  // JSON string of { lat, lng, zoom }
   active      Boolean  @default(true)
   sortOrder   Int      @default(0)
@@ -324,12 +337,12 @@ model GuideBio {
   name            String   @default("Zaky")
   fullName        String   @default("Mohamed Zaky Bentabaa")
   eyebrow         String   @default("Meet your guide")
-  title           String   @default("Licensed Tour Guide in Marrakesh")
+  title           String   @default("About Me")
   bioP1           String   @db.Text
   bioP2           String   @db.Text
   bioP3           String   @db.Text
   bioP4           String   @db.Text
-  signoff         String   @default("Welcome to Marrakesh — let me show you my Morocco.")
+  signoff         String   @default("Marrakech, curated by Zaky")
   rating          String   @default("5.0★")
   reviewsCount    String   @default("41")
   experienceYears String   @default("19")

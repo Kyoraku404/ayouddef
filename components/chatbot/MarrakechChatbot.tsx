@@ -18,10 +18,19 @@ import {
   ChevronDown,
   Mountain,
   Sun,
+  Languages,
+  Waves,
 } from "lucide-react";
 import { useLanguage } from "@/components/common/LanguageProvider";
 import { useCurrency } from "@/components/common/CurrencyProvider";
-import { marrakechKnowledge, findBestMarrakechAnswer, KnowledgeTopic } from "@/lib/marrakech-knowledge";
+import {
+  marrakechKnowledge,
+  findBestMarrakechAnswer,
+  detectQueryLang,
+  localizeText,
+  KnowledgeTopic,
+  ChatLang,
+} from "@/lib/marrakech-knowledge";
 import { trackWhatsAppClick } from "@/lib/analytics-client";
 
 interface Message {
@@ -29,6 +38,7 @@ interface Message {
   sender: "bot" | "user";
   text: string;
   topic?: KnowledgeTopic;
+  lang?: ChatLang;
   timestamp: string;
 }
 
@@ -44,16 +54,18 @@ export function MarrakechChatbot() {
   const { formatPrice } = useCurrency();
 
   // Welcome greetings based on current language
-  const welcomeText = {
+  const welcomeText: Record<string, string> = {
     en: "Marhaba! Welcome to Marrakech. I'm Zaky's Virtual Concierge. How can I help you discover the Medina, authentic food, hidden sights, or private tours today?",
     fr: "Marhaba ! Bienvenue à Marrakech. Je suis le Concierge Virtuel de Zaky. Comment puis-je vous aider pour vos visites, la gastronomie, les souks ou nos circuits privés ?",
     es: "¡Marhaba! Bienvenido a Marrakech. Soy el Asistente Virtual de Zaky. ¿En qué puedo ayudarte hoy para descubrir la Medina, gastronomía, zocos o tours privados?",
+    ar: "سلام! مرحبا بك في مراكش. أنا المساعد الافتراضي لزكي. كيفاش نقدر نعاونك تكتشف المدينة، الماكلة الأصيلة، الأماكن المخبية، ولا الجولات الخاصة؟ كنهضر بالعربية والدارجة أيضا — سول بلا حشمة!",
   };
 
-  const bubbleTeaser = {
+  const bubbleTeaser: Record<string, string> = {
     en: "Visiting Marrakech? Ask me anything about the city & tours! ✨",
     fr: "Vous visitez Marrakech ? Posez vos questions sur la ville & les visites ! ✨",
     es: "¿Visitas Marrakech? ¡Pregúntame sobre la ciudad y los tours! ✨",
+    ar: "جاي لمراكش؟ سولني أي حاجة على المدينة والجولات! ✨",
   };
 
   // Initial welcome message
@@ -128,6 +140,18 @@ export function MarrakechChatbot() {
       icon: Sparkles,
       query: { en: "What private tour packages does Zaky offer?", fr: "Quels sont les circuits privés proposés par Zaky ?", es: "¿Qué tours privados ofrece Zaky?" },
     },
+    {
+      id: "bargaining-darija",
+      label: { en: "Bargaining & Darija", fr: "Négociation & Darija", es: "Regateo y Darija" },
+      icon: Languages,
+      query: { en: "How do I bargain in the souks? Teach me Darija phrases", fr: "Comment négocier dans les souks ? Apprends-moi des phrases en darija", es: "¿Cómo regateo en los zocos? Enséñame frases en darija" },
+    },
+    {
+      id: "essaouira-coast",
+      label: { en: "Essaouira & Coast", fr: "Essaouira & Côte", es: "Essaouira y Costa" },
+      icon: Waves,
+      query: { en: "Should I visit Essaouira or Oualidia from Marrakech?", fr: "Faut-il visiter Essaouira ou Oualidia depuis Marrakech ?", es: "¿Visito Essaouira u Oualidia desde Marrakech?" },
+    },
   ];
 
   const handleSendMessage = (textToSend?: string) => {
@@ -146,24 +170,30 @@ export function MarrakechChatbot() {
     setInputQuery("");
     setIsTyping(true);
 
+    // Answer in the visitor's language: auto-detect Arabic/Darija/Arabizi,
+    // otherwise follow the site UI language.
+    const effectiveLang: ChatLang = detectQueryLang(text) ?? language;
+
     // Simulate natural thinking delay
     setTimeout(() => {
-      const match = findBestMarrakechAnswer(text, language);
+      const match = findBestMarrakechAnswer(text, effectiveLang);
 
       let botResponseText = "";
       let matchedTopic: KnowledgeTopic | undefined = undefined;
 
       if (match) {
         matchedTopic = match.topic;
-        botResponseText = match.topic.answer[language] || match.topic.answer.en;
+        botResponseText = localizeText(match.topic.answer, effectiveLang);
       } else {
         // Fallback intelligent response with WhatsApp coordination and suggestions
         botResponseText =
-          language === "fr"
-            ? `C'est une excellente question sur Marrakech ! Pour vous donner une réponse sur-mesure, vous pouvez aussi contacter **Zaky directement sur WhatsApp** (+212 6 61 17 63 69).\n\nVous pouvez également me poser des questions sur les **monuments incontournables**, la **vraie Tanjia**, comment **négocier dans les souks**, les **tarifs de taxi & aéroport**, le **code vestimentaire**, ou nos **visites privées** !`
-            : language === "es"
-            ? `¡Es una excelente pregunta sobre Marrakech! Para una recomendación personalizada para tu viaje, puedes escribirle directamente a **Zaky por WhatsApp** (+212 6 61 17 63 69).\n\nTambién puedes preguntarme sobre los **monumentos imprescindibles**, la **comida típica (Tanjia)**, cómo **regatear en los zocos**, **precios de taxi**, o nuestros **tours privados**.`
-            : `That's a great question about Marrakech! For personalized advice, you can chat with **licensed guide Zaky directly on WhatsApp** (+212 6 61 17 63 69).\n\nYou can also ask me about **must-see sights**, authentic **Tanjia food**, **souk bargaining tips**, **taxi & airport prices**, **dress code**, or **Zaky's private tours**!`;
+          effectiveLang === "ar"
+            ? `سؤال زوين على مراكش! للإجابة مخصصة ليك، تقدر تهضر مع **زكي مباشرة في واتساب** (+212 6 61 17 63 69).\n\nوتقدر تسولني على **المعالم**، **الطنجية والماكلة**، **المساومة والدارجة**، **الصويرة والوليدية**، **أوريكا والأطلس**، **الرياضات والفنادق**، ولا **الجولات الخاصة**!`
+            : effectiveLang === "fr"
+            ? `C'est une excellente question sur Marrakech ! Pour vous donner une réponse sur-mesure, vous pouvez aussi contacter **Zaky directement sur WhatsApp** (+212 6 61 17 63 69).\n\nVous pouvez également me poser des questions sur les **monuments incontournables**, la **vraie Tanjia**, comment **négocier dans les souks**, **Essaouira & Oualidia**, **l'Ourika & l'Atlas**, les **phrases en darija**, ou nos **visites privées** ! (Je comprends aussi l'arabe et la darija — écrivez comme vous voulez.)`
+            : effectiveLang === "es"
+            ? `¡Es una excelente pregunta sobre Marrakech! Para una recomendación personalizada para tu viaje, puedes escribirle directamente a **Zaky por WhatsApp** (+212 6 61 17 63 69).\n\nTambién puedes preguntarme sobre los **monumentos imprescindibles**, la **comida típica (Tanjia)**, cómo **regatear en los zocos**, **Essaouira y Oualidia**, **Ourika y el Atlas**, **frases en darija**, o nuestros **tours privados**.`
+            : `That's a great question about Marrakech! For personalized advice, you can chat with **Zaky directly on WhatsApp** (+212 6 61 17 63 69).\n\nYou can also ask me about **must-see sights**, authentic **Tanjia food**, **souk bargaining tips**, **Essaouira & Oualidia**, **Ourika & the Atlas**, **Darija phrases**, or **Zaky's private tours**! (I also understand Arabic and Darija — write however you like.)`;
       }
 
       const botMsg: Message = {
@@ -171,6 +201,7 @@ export function MarrakechChatbot() {
         sender: "bot",
         text: botResponseText,
         topic: matchedTopic,
+        lang: effectiveLang,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
 
@@ -223,7 +254,7 @@ export function MarrakechChatbot() {
               ? "bg-brown text-cream hover:bg-ink scale-95"
               : "bg-gradient-to-r from-terracotta to-terracotta-dark text-white hover:scale-105 active:scale-95"
           }`}
-          aria-label={isOpen ? "Close Marrakech Concierge" : "Open Marrakech Concierge"}
+          aria-label={isOpen ? "Close Chatbot" : "Open Chatbot"}
         >
           {isOpen ? (
             <>
@@ -240,8 +271,8 @@ export function MarrakechChatbot() {
                 </span>
               </div>
               <div className="flex flex-col text-left">
-                <span className="text-xs font-bold tracking-wide uppercase leading-tight">Marrakech Guide</span>
-                <span className="text-[10px] text-cream/80 font-normal leading-tight">Ask Zaky AI</span>
+                <span className="text-xs font-bold tracking-wide uppercase leading-tight">Chatbot</span>
+                <span className="text-[10px] text-cream/80 font-normal leading-tight">Ask me anything</span>
               </div>
             </>
           )}
@@ -250,7 +281,7 @@ export function MarrakechChatbot() {
 
       {/* Floating Chat Modal Panel */}
       {isOpen && (
-        <div className="fixed inset-x-4 bottom-24 sm:inset-x-auto sm:right-6 sm:bottom-24 z-50 w-auto sm:w-[420px] max-h-[85vh] h-[600px] flex flex-col bg-cream rounded-3xl shadow-2xl border border-sand/90 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-x-2.5 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-24 z-50 w-auto sm:w-[420px] max-h-[calc(100svh-90px)] h-[560px] flex flex-col bg-cream rounded-2xl sm:rounded-3xl shadow-2xl border border-sand/90 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Header Bar */}
           <div className="p-4 bg-gradient-to-r from-brown via-brown-soft to-brown text-cream flex items-center justify-between border-b border-sand/20">
             <div className="flex items-center gap-3">
@@ -264,11 +295,11 @@ export function MarrakechChatbot() {
               </div>
               <div>
                 <h3 className="font-heading text-sm sm:text-base font-semibold text-cream leading-snug flex items-center gap-1.5">
-                  <span>Zaky Virtual Concierge</span>
+                  <span>Chatbot</span>
                   <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" title="Online" />
                 </h3>
                 <p className="text-[11px] text-sand-soft/80 flex items-center gap-1">
-                  <span>Licensed Guide #2007 • Marrakech</span>
+                  <span>Official Guide #2007 • Marrakech</span>
                 </p>
               </div>
             </div>
@@ -340,7 +371,7 @@ export function MarrakechChatbot() {
                         onClick={() => setIsOpen(false)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sand-soft hover:bg-sand text-brown font-semibold text-xs transition-colors"
                       >
-                        <span>{msg.topic.relatedAction.label[language] || msg.topic.relatedAction.label.en}</span>
+                        <span>{localizeText(msg.topic.relatedAction.label, msg.lang ?? language)}</span>
                         <ExternalLink className="w-3 h-3 text-terracotta" />
                       </Link>
                     </div>

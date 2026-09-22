@@ -35,6 +35,23 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setMobileMenuOpen(false);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [mobileMenuOpen]);
+
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   // Helper to ensure links work from both home and tour subpages
@@ -61,6 +78,7 @@ export function Navbar() {
             <Link href={getHref("#home")}>{t.nav.home}</Link>
             <Link href={getHref("#about")}>{t.nav.about}</Link>
             <Link href={getHref("#tours")}>{t.nav.tours}</Link>
+            <Link href={getHref("#gallery")}>{t.nav.gallery}</Link>
             <Link href={getHref("#reviews")}>{t.nav.reviews}</Link>
             <Link href={getHref("#reservation")}>{t.nav.reservation}</Link>
             <Link href={getHref("#contact")}>{t.nav.contact}</Link>
@@ -130,9 +148,9 @@ export function Navbar() {
               {t.nav.cta}
             </Link>
             <button
-              className="burger"
+              className={`burger ${mobileMenuOpen ? "open" : ""}`}
               id="burgerBtn"
-              aria-label="Open menu"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileMenuOpen}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
@@ -192,6 +210,7 @@ export function Navbar() {
         <Link href={getHref("#home")} onClick={closeMobileMenu}>{t.nav.home}</Link>
         <Link href={getHref("#about")} onClick={closeMobileMenu}>{t.nav.about}</Link>
         <Link href={getHref("#tours")} onClick={closeMobileMenu}>{t.nav.tours}</Link>
+        <Link href={getHref("#gallery")} onClick={closeMobileMenu}>{t.nav.gallery}</Link>
         <Link href={getHref("#reviews")} onClick={closeMobileMenu}>{t.nav.reviews}</Link>
         <Link href={getHref("#reservation")} onClick={closeMobileMenu}>{t.nav.reservation}</Link>
         <Link href={getHref("#contact")} onClick={closeMobileMenu}>{t.nav.contact}</Link>

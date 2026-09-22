@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Work_Sans } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/config";
@@ -18,59 +18,76 @@ const workSans = Work_Sans({
 
 /**
  * Marrakeshi Tour Guide — Official Web Application
- * Made by OCN
+ * Made by Zaky
  * All Rights Reserved
  */
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#2B1E15",
+};
+
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.urls.site),
-  title: "Marrakeshi Tour Guide by Zaky | Marrakesh Private Tours",
+  metadataBase: new URL("https://marrakeshi-guide.vercel.app"),
+  title: {
+    default: "Marrakeshi Tour Guide by Zaky | Authentic Private Marrakech Tours & Medina Experiences",
+    template: "%s | Marrakeshi Tour Guide by Zaky",
+  },
   description:
-    "Discover Marrakesh with local guide Zaky. Enjoy authentic private tours, Medina experiences, souks, culture, history, and customized Marrakesh tours.",
-  generator: "OCN",
+    "Discover authentic Marrakech with second-generation tour guide Zaky. Private Medina walking tours, hidden souks, cultural landmarks, Moroccan food tastings, and tailor-made Atlas Mountains day trips.",
+  generator: "Zaky",
   applicationName: "Marrakeshi Tour Guide",
   keywords: [
-    "Marrakesh tour guide",
-    "Marrakesh private tour",
-    "Marrakesh local guide",
-    "Marrakesh Medina tour",
-    "Morocco tour guide",
-    "private Marrakesh guide",
+    "Marrakech travel guide",
+    "Things to do in Marrakech",
+    "Best places to visit in Marrakech",
+    "Marrakech tours",
+    "Marrakech private tours",
+    "Marrakech day trips",
+    "Marrakech itinerary",
+    "Marrakech tour guide",
+    "Marrakech Medina tour",
+    "Official tour guide Marrakech",
+    "Private Marrakech guide",
+    "Morocco cultural tours",
+    "Atlas Mountains day trip from Marrakech",
   ],
-  authors: [{ name: "OCN", url: "https://ocndev.vercel.app/" }, { name: "Zaky" }],
-  creator: "OCN",
-  publisher: "OCN",
+  authors: [{ name: "Zaky" }],
+  creator: "Zaky",
+  publisher: "Zaky",
   other: {
-    "developer": "Made by OCN",
-    "agency": "OCN",
+    "developer": "Made by Zaky",
+    "agency": "Zaky",
     "client": "Zaky",
   },
   alternates: {
-    canonical: "/",
+    canonical: "https://marrakeshi-guide.vercel.app/",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: siteConfig.urls.site,
-    siteName: "Marrakeshi Tour Guide",
-    title: "Marrakeshi Tour Guide by Zaky | Marrakesh Private Tours",
+    url: "https://marrakeshi-guide.vercel.app",
+    siteName: "Marrakeshi Tour Guide by Zaky",
+    title: "Marrakeshi Tour Guide by Zaky | Authentic Private Marrakech Tours & Medina Experiences",
     description:
-      "Discover Marrakesh with local guide Zaky. Enjoy authentic private tours, Medina experiences, souks, culture, history, and customized Marrakesh tours.",
+      "Discover authentic Marrakech with second-generation tour guide Zaky. Private Medina walking tours, hidden souks, cultural landmarks, and tailor-made day trips.",
     images: [
       {
-        url: "/logo.svg",
-        width: 800,
-        height: 600,
-        alt: "Marrakeshi Tour Guide Emblem",
+        url: "/images/hero.jpg",
+        width: 1200,
+        height: 800,
+        alt: "Zaky - Official Tour Guide in Marrakesh Morocco",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Marrakeshi Tour Guide by Zaky | Marrakesh Private Tours",
+    title: "Marrakeshi Tour Guide by Zaky | Authentic Private Marrakech Tours",
     description:
-      "Discover Marrakesh with local guide Zaky. Enjoy authentic private tours, Medina experiences, souks, culture, history, and customized Marrakesh tours.",
-    images: ["/logo.svg"],
+      "Discover authentic Marrakech with second-generation tour guide Zaky. Private Medina walking tours, hidden souks, cultural landmarks, and tailor-made day trips.",
+    images: ["/images/hero.jpg"],
   },
   robots: {
     index: true,
@@ -87,6 +104,12 @@ export const metadata: Metadata = {
     icon: "/logo.svg",
     shortcut: "/logo.svg",
     apple: "/logo.svg",
+  },
+  verification: {
+    google: [
+      "UEP20hXlrxJOu6qwxWcRkAnBC39h0BeHZb3YXQaEY_A",
+      "NGR4pd5w_7QJ9XBNKPoL8nVBwd5hnCufMocDFJWTAcw",
+    ],
   },
 };
 

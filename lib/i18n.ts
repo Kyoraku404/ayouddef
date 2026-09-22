@@ -5,6 +5,7 @@ export interface Translations {
     home: string;
     about: string;
     tours: string;
+    gallery: string;
     reviews: string;
     reservation: string;
     contact: string;
@@ -98,6 +99,7 @@ export const translations: Record<Language, Translations> = {
       home: "Home",
       about: "About Zaky",
       tours: "Tours",
+      gallery: "Gallery",
       reviews: "Reviews",
       reservation: "Reservation",
       contact: "Contact",
@@ -105,9 +107,9 @@ export const translations: Record<Language, Translations> = {
       brandTitle: "Marrakeshi Tour Guide",
     },
     hero: {
-      badge: "Official Licensed Tour Guide in Marrakesh",
-      title: "Discover the Soul of Marrakesh with",
-      titleAccent: "Licensed Guide Zaky",
+      badge: "Official Licensed Tour Guide in Marrakech",
+      title: "Discover the Soul of Marrakech",
+      titleAccent: "",
       subtitle:
         "Second-generation private tour guide born and raised in the Medina. Experience authentic hidden courtyards, artisan souks, and cultural landmarks through personalized walking tours tailored exclusively for you.",
       bookTour: "Book a Private Tour",
@@ -117,11 +119,11 @@ export const translations: Record<Language, Translations> = {
     },
     about: {
       eyebrow: "Meet your guide",
-      title: "Zaky",
+      title: "About Me",
       googleRating: "Google rating",
       verifiedReviews: "Verified Google reviews",
       signatureTours: "Signature tour experiences",
-      signoff: "Welcome to Marrakesh — let me show you my Morocco.",
+      signoff: "Marrakech, curated by Zaky",
     },
     tours: {
       eyebrow: "Experiences",
@@ -148,7 +150,7 @@ export const translations: Record<Language, Translations> = {
       instantWhatsApp: "Chat with Zaky on WhatsApp",
       flexibleDates: "Flexible cancellation & custom timing",
       perPrivateGroup: "per private group",
-      licensedGuideNote: "Official Ministry of Tourism Licensed Guide",
+      licensedGuideNote: "Official Ministry of Tourism Guide",
     },
     reservation: {
       eyebrow: "Plan Your Visit",
@@ -179,12 +181,12 @@ export const translations: Record<Language, Translations> = {
       ratingText: "41 Verified 5-Star Reviews on Google",
     },
     footer: {
-      tagline: "Authentic private tours in Marrakesh led by licensed second-generation guide Mohamed Zaky Bentabaa.",
+      tagline: "Authentic private tours in Marrakesh led by second-generation guide Mohamed Zaky Bentabaa.",
       navigation: "Navigation",
       experiences: "Experiences",
       contactDirect: "Direct Contact",
       rights: "All rights reserved.",
-      secondGenGuide: "Licensed Marrakesh Tour Guide since 2007",
+      secondGenGuide: "Official Marrakesh Tour Guide since 2007",
     },
   },
 
@@ -193,6 +195,7 @@ export const translations: Record<Language, Translations> = {
       home: "Accueil",
       about: "À propos de Zaky",
       tours: "Circuits & Packs",
+      gallery: "Galerie",
       reviews: "Avis Clients",
       reservation: "Réservation",
       contact: "Contact",
@@ -201,8 +204,8 @@ export const translations: Record<Language, Translations> = {
     },
     hero: {
       badge: "Guide Touristique Officiel Agréé à Marrakech",
-      title: "Découvrez l'Âme de Marrakech avec",
-      titleAccent: "Votre Guide Agréé Zaky",
+      title: "Découvrez l'Âme de Marrakech",
+      titleAccent: "",
       subtitle:
         "Guide privé de 2ème génération né et ayant grandi dans la Médina. Visitez les riads secrets, les souks authentiques et les joyaux culturels à travers des visites à pied sur mesure.",
       bookTour: "Réserver une Visite Privée",
@@ -212,11 +215,11 @@ export const translations: Record<Language, Translations> = {
     },
     about: {
       eyebrow: "Rencontrez votre guide",
-      title: "Zaky",
+      title: "À propos de moi",
       googleRating: "Note Google",
       verifiedReviews: "Avis Google vérifiés",
       signatureTours: "Circuits signatures",
-      signoff: "Bienvenue à Marrakech — laissez-moi vous faire découvrir mon Maroc.",
+      signoff: "Marrakech, imaginé par Zaky",
     },
     tours: {
       eyebrow: "Nos Circuits & Expériences",
@@ -243,7 +246,7 @@ export const translations: Record<Language, Translations> = {
       instantWhatsApp: "Discuter avec Zaky sur WhatsApp",
       flexibleDates: "Annulation flexible & horaires sur mesure",
       perPrivateGroup: "par groupe privé",
-      licensedGuideNote: "Guide Officiel Agréé par le Ministère du Tourisme",
+      licensedGuideNote: "Guide Officiel du Ministère du Tourisme",
     },
     reservation: {
       eyebrow: "Planifiez Votre Séjour",
@@ -274,7 +277,7 @@ export const translations: Record<Language, Translations> = {
       ratingText: "41 Avis Vérifiés 5 Étoiles sur Google",
     },
     footer: {
-      tagline: "Visites guidées privées et authentiques à Marrakech avec Mohamed Zaky Bentabaa, guide officiel agréé depuis 2007.",
+      tagline: "Visites guidées privées et authentiques à Marrakech avec Mohamed Zaky Bentabaa, guide de 2ème génération.",
       navigation: "Navigation",
       experiences: "Circuits",
       contactDirect: "Contact Direct",
@@ -288,6 +291,7 @@ export const translations: Record<Language, Translations> = {
       home: "Inicio",
       about: "Sobre Zaky",
       tours: "Tours y Paquetes",
+      gallery: "Galería",
       reviews: "Opiniones",
       reservation: "Reservas",
       contact: "Contacto",
@@ -296,8 +300,8 @@ export const translations: Record<Language, Translations> = {
     },
     hero: {
       badge: "Guía Turístico Oficial Acreditado en Marrakech",
-      title: "Descubra el Alma de Marrakech con el",
-      titleAccent: "Guía Oficial Zaky",
+      title: "Descubra el Alma de Marrakech",
+      titleAccent: "",
       subtitle:
         "Guía privado de segunda generación nacido y criado en la Medina. Disfrute de auténticos patios ocultos, zocos artesanales y monumentos culturales con recorridos a pie a su medida.",
       bookTour: "Reservar Tour Privado",
@@ -307,11 +311,11 @@ export const translations: Record<Language, Translations> = {
     },
     about: {
       eyebrow: "Conozca a su guía",
-      title: "Zaky",
+      title: "Sobre mí",
       googleRating: "Valoración Google",
       verifiedReviews: "Opiniones verificadas",
       signatureTours: "Tours exclusivos",
-      signoff: "Bienvenidos a Marrakech — permítanme mostrarles mi Marruecos.",
+      signoff: "Marrakech, comisariado por Zaky",
     },
     tours: {
       eyebrow: "Nuestros Tours y Experiencias",
@@ -338,7 +342,7 @@ export const translations: Record<Language, Translations> = {
       instantWhatsApp: "Chatear con Zaky por WhatsApp",
       flexibleDates: "Cancelación flexible y horarios personalizados",
       perPrivateGroup: "por grupo privado",
-      licensedGuideNote: "Guía Oficial Acreditado por el Ministerio de Turismo",
+      licensedGuideNote: "Guía Oficial del Ministerio de Turismo",
     },
     reservation: {
       eyebrow: "Planifique su Viaje",
@@ -369,7 +373,7 @@ export const translations: Record<Language, Translations> = {
       ratingText: "41 Reseñas Verificadas de 5 Estrellas en Google",
     },
     footer: {
-      tagline: "Tours privados y auténticos en Marrakech de la mano de Mohamed Zaky Bentabaa, guía oficial acreditado desde 2007.",
+      tagline: "Tours privados y auténticos en Marrakech de la mano de Mohamed Zaky Bentabaa, guía de segunda generación.",
       navigation: "Navegación",
       experiences: "Experiencias",
       contactDirect: "Contacto Directo",

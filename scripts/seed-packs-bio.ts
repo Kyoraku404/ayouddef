@@ -64,16 +64,16 @@ async function main() {
       name: "Zaky",
       fullName: "Mohamed Zaky Bentabaa",
       eyebrow: "Meet your guide",
-      title: "Licensed Tour Guide in Marrakesh",
+      title: "About Me",
       bioP1:
-        "I'm Mohamed Zaky Bentabaa, a licensed tour guide in Marrakesh and a second-generation guide. I began my career as a professional tour guide in 2007.",
+        "I’m Zaky, a second-generation official tour guide born and raised in Marrakech.",
       bioP2:
-        "Born and raised in Marrakesh, I hold a Master's degree in Tourism Management and speak Arabic, French, and English. I'm passionate about sharing my city and my country through authentic, private, and tailor-made experiences.",
+        "With a Master’s degree in Tourism Management and nearly two decades of experience, I offer a personal and authentic way to discover Marrakech and Morocco.",
       bioP3:
-        "Over the years, I've had the privilege of guiding travelers from around the world, including personalities from sport, cinema, and media, such as Achraf Hakimi, Fabian Ruiz, Paul Schrader, and Eric André.",
+        "For me, guiding is not simply about showing places. It’s about sharing the stories, culture, hidden details and everyday life that make Marrakech truly special.",
       bioP4:
-        "For me, guiding is more than showing places. It's about sharing my city, creating genuine connections, and turning a journey into a lasting memory.",
-      signoff: "Welcome to Marrakesh — let me show you my Morocco.",
+        "Over the years, I’ve had the privilege of guiding guests from all over the world, including internationally known personalities. But whether you are a first-time visitor or a returning guest, my approach remains the same: personal, discreet and tailored to you.",
+      signoff: "Marrakech, curated by Zaky",
       rating: "5.0★",
       reviewsCount: "41",
       experienceYears: "19",

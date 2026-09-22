@@ -2,8 +2,8 @@
   "name": "youss",
   "version": "0.1.0",
   "private": true,
-  "description": "Marrakeshi Tour Guide — Made by OCN",
-  "author": "OCN",
+  "description": "Marrakeshi Tour Guide — Made by Zaky",
+  "author": "Zaky",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

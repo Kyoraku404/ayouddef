@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Navigation, Clock, ExternalLink, Layers, Globe } from "lucide-react";
+import { Navigation, ExternalLink, Layers, Globe } from "lucide-react";
 import { TourItineraryStop } from "@/lib/types";
 
 interface TourMapProps {
@@ -125,10 +125,6 @@ export function TourMap({ stops, mapCenter, tourTitle }: TourMapProps) {
                   <h4 className="font-heading text-sm font-semibold text-cream leading-tight">
                     {activeStop.name}
                   </h4>
-                  <div className="flex items-center gap-2 text-xs text-sand/80 mt-0.5">
-                    <Clock className="w-3 h-3 text-gold" />
-                    <span>Duration: {activeStop.duration}</span>
-                  </div>
                 </div>
               </div>
 
@@ -184,9 +180,6 @@ export function TourMap({ stops, mapCenter, tourTitle }: TourMapProps) {
                     >
                       {stop.name}
                     </h5>
-                    <span className="text-[11px] font-medium text-ink/60 whitespace-nowrap">
-                      {stop.duration}
-                    </span>
                   </div>
                   <p className="text-xs text-ink/75 mt-1.5 leading-relaxed line-clamp-2">
                     {stop.description}

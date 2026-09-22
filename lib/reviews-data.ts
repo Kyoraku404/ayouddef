@@ -14,7 +14,7 @@ export const reviewsData: Review[] = [
     location: "Ireland",
     source: "Google",
     rating: 5,
-    text: "Having a licensed local guide who grew up in Marrakesh makes all the difference. Zaky navigated the souks effortlessly, introduced us to master craftsmen, and taught us so much about Moroccan heritage and hospitality. 10/10 recommendation for anyone visiting Morocco.",
+    text: "Having an official local guide who grew up in Marrakesh makes all the difference. Zaky navigated the souks effortlessly, introduced us to master craftsmen, and taught us so much about Moroccan heritage and hospitality. 10/10 recommendation for anyone visiting Morocco.",
   },
   {
     id: "rev-3",

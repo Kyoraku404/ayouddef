@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import { TourPacksTab } from "@/components/adminzaky/TourPacksTab";
 import { GuideBioTab } from "@/components/adminzaky/GuideBioTab";
+import { GalleryTab } from "@/components/adminzaky/GalleryTab";
 
 interface SiteImageItem {
   id: string;
@@ -33,7 +34,7 @@ interface ReservationItem {
 }
 
 export default function ZakyAdminDashboard() {
-  const [activeTab, setActiveTab] = useState<"packs" | "bio" | "images" | "reservations">("packs");
+  const [activeTab, setActiveTab] = useState<"packs" | "bio" | "images" | "gallery" | "reservations">("packs");
   const [tourCount, setTourCount] = useState<number>(7);
   const [images, setImages] = useState<SiteImageItem[]>([]);
   const [loadingImages, setLoadingImages] = useState(true);
@@ -140,7 +141,7 @@ export default function ZakyAdminDashboard() {
       .catch(() => {});
   }, []);
 
-  const handleTabChange = (tab: "packs" | "bio" | "images" | "reservations") => {
+  const handleTabChange = (tab: "packs" | "bio" | "images" | "gallery" | "reservations") => {
     setActiveTab(tab);
     if (tab === "images" && images.length === 0) {
       loadImages();
@@ -606,6 +607,22 @@ export default function ZakyAdminDashboard() {
             🖼️ Photos du Site ({images.length})
           </button>
           <button
+            onClick={() => handleTabChange("gallery")}
+            style={{
+              padding: "10px 18px",
+              background: activeTab === "gallery" ? "#d4a359" : "transparent",
+              color: activeTab === "gallery" ? "#1a140d" : "#c5b8a6",
+              fontWeight: 700,
+              fontSize: "13px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+          >
+            📸 Galerie Site
+          </button>
+          <button
             onClick={() => handleTabChange("reservations")}
             style={{
               padding: "10px 18px",
@@ -663,6 +680,9 @@ export default function ZakyAdminDashboard() {
 
       {/* ===================== TAB: GUIDE BIO & PROFILE ===================== */}
       {activeTab === "bio" && <GuideBioTab notify={notify} />}
+
+      {/* ===================== TAB: WEBSITE PHOTO GALLERY ===================== */}
+      {activeTab === "gallery" && <GalleryTab notify={notify} />}
 
       {/* ===================== TAB: WEBSITE IMAGES CMS ===================== */}
       {activeTab === "images" && (

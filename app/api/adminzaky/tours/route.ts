@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getZakySession } from "@/lib/auth";
 import { getOcnSession } from "@/lib/ocn-auth";
+import { toursData } from "@/lib/tours-data";
 
 export const dynamic = "force-dynamic";
 
@@ -12,12 +13,96 @@ async function isAuthorized() {
   return Boolean(ocn);
 }
 
+export const VALID_ICONS = ["gate", "basket", "palace", "tea", "monument", "compass", "road"];
+export const VALID_THEMES = ["t1", "t2", "t3", "t4", "t5", "t6", "t7"];
+
+export function slugifyTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+async function ensureSeeded() {
+  const existing = await prisma.tourPackage.findMany();
+  if (existing.length === 0) {
+    // First run: seed TourPackage table from static catalogue with
+    // INDEPENDENT card + full descriptions, icon and theme per tour.
+    for (let i = 0; i < toursData.length; i++) {
+      const t = toursData[i];
+      await prisma.tourPackage.upsert({
+        where: { slug: t.slug },
+        update: {},
+        create: {
+          slug: t.slug,
+          title: t.title,
+          subtitle: t.subtitle || null,
+          price: t.price || "700 MAD",
+          priceNote: t.priceNote || null,
+          duration: t.duration || null,
+          groupType: t.groupType || null,
+          languages: t.languages || null,
+          badge: null,
+          description: (t.fullDescription || [t.description]).join("\n\n"),
+          cardDescription: t.description || null,
+          fullDescription: (t.fullDescription || [t.description]).join("\n\n"),
+          icon: t.icon || "gate",
+          cls: t.cls || "t1",
+          highlights: JSON.stringify(t.highlights || []),
+          included: JSON.stringify(t.included || []),
+          notIncluded: JSON.stringify(t.notIncluded || []),
+          itinerary: JSON.stringify(t.itinerary || []),
+          mapCenter: JSON.stringify(t.mapCenter || { lat: 31.6295, lng: -7.988, zoom: 15 }),
+          active: true,
+          sortOrder: i,
+        },
+      });
+    }
+    return;
+  }
+
+  // Backfill rows created before the split: fill ONLY null fields, never
+  // overwrite admin content. Card and full stay independent.
+  for (const pkg of existing) {
+    const fallback = toursData.find((t) => t.slug === pkg.slug);
+    const data: Record<string, string | null> = {};
+    if (pkg.cardDescription == null) {
+      data.cardDescription =
+        fallback?.description ??
+        (pkg.description ? pkg.description.split(/\n\n+/)[0].trim() : null) ??
+        null;
+    }
+    if (pkg.fullDescription == null) {
+      const legacyParas = (pkg.description ?? "")
+        .split(/\n\n+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      data.fullDescription =
+        legacyParas.length > 1
+          ? pkg.description
+          : fallback && fallback.fullDescription.length > 0
+            ? fallback.fullDescription.join("\n\n")
+            : (pkg.description ?? null);
+    }
+    if (pkg.icon == null) data.icon = (fallback?.icon as string | undefined) ?? "gate";
+    if (pkg.cls == null) data.cls = fallback?.cls ?? "t1";
+    if (Object.keys(data).length > 0) {
+      await prisma.tourPackage.update({ where: { id: pkg.id }, data });
+    }
+  }
+}
+
 // GET: Fetch all tour packages with prices from PostgreSQL
 export async function GET() {
   try {
     if (!(await isAuthorized())) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    await ensureSeeded();
 
     const tours = await prisma.tourPackage.findMany({
       orderBy: { sortOrder: "asc" },
@@ -53,6 +138,11 @@ export async function PUT(req: Request) {
       languages,
       badge,
       description,
+      cardDescription,
+      fullDescription,
+      icon,
+      cls,
+      cardImage,
       highlights,
       included,
       notIncluded,
@@ -71,6 +161,19 @@ export async function PUT(req: Request) {
 
     const where = id ? { id } : { slug };
 
+    if (icon !== undefined && icon !== null && icon !== "" && !VALID_ICONS.includes(String(icon))) {
+      return NextResponse.json(
+        { error: `Invalid icon. Must be one of: ${VALID_ICONS.join(", ")}` },
+        { status: 400 }
+      );
+    }
+    if (cls !== undefined && cls !== null && cls !== "" && !VALID_THEMES.includes(String(cls))) {
+      return NextResponse.json(
+        { error: `Invalid theme. Must be one of: ${VALID_THEMES.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
     const updated = await prisma.tourPackage.update({
       where,
       data: {
@@ -82,7 +185,30 @@ export async function PUT(req: Request) {
         ...(groupType !== undefined && { groupType: String(groupType).trim() }),
         ...(languages !== undefined && { languages: String(languages).trim() }),
         ...(badge !== undefined && { badge: badge ? String(badge).trim() : null }),
-        ...(description !== undefined && { description: String(description).trim() }),
+        // Card + Full descriptions are stored in SEPARATE columns and saved
+        // independently — updating one never touches the other.
+        ...(cardDescription !== undefined && {
+          cardDescription: cardDescription ? String(cardDescription).trim() : null,
+        }),
+        ...(fullDescription !== undefined && {
+          fullDescription: fullDescription ? String(fullDescription).trim() : null,
+        }),
+        // Legacy `description` alias: only honored when the new fields are
+        // absent, and routed to the full description (its historic meaning).
+        ...(description !== undefined &&
+          cardDescription === undefined &&
+          fullDescription === undefined && {
+            fullDescription: description ? String(description).trim() : null,
+          }),
+        ...(icon !== undefined && {
+          icon: icon ? String(icon).trim() : null,
+        }),
+        ...(cls !== undefined && {
+          cls: cls ? String(cls).trim() : null,
+        }),
+        ...(cardImage !== undefined && {
+          cardImage: cardImage ? String(cardImage).trim() : null,
+        }),
         ...(highlights !== undefined && {
           highlights: typeof highlights === "string" ? highlights : JSON.stringify(highlights),
         }),
@@ -112,6 +238,169 @@ export async function PUT(req: Request) {
     console.error("Error updating tour package:", error);
     return NextResponse.json(
       { error: "Failed to update tour package", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// POST: Create a new tour package with independent card + full descriptions
+export async function POST(req: Request) {
+  try {
+    if (!(await isAuthorized())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const {
+      title,
+      slug,
+      subtitle,
+      price,
+      priceNote,
+      duration,
+      groupType,
+      languages,
+      badge,
+      cardDescription,
+      fullDescription,
+      description,
+      icon,
+      cls,
+      cardImage,
+      highlights,
+      included,
+      notIncluded,
+      itinerary,
+      mapCenter,
+      active,
+      sortOrder,
+    } = body;
+
+    if (!title || !String(title).trim()) {
+      return NextResponse.json({ error: "Tour title is required" }, { status: 400 });
+    }
+    if (!price || !String(price).trim()) {
+      return NextResponse.json({ error: "Price is required (e.g. 700 MAD)" }, { status: 400 });
+    }
+
+    let finalSlug = slug && String(slug).trim()
+      ? slugifyTitle(String(slug))
+      : slugifyTitle(String(title));
+    if (!finalSlug) {
+      return NextResponse.json({ error: "Could not generate a URL slug from the title" }, { status: 400 });
+    }
+
+    // Ensure slug uniqueness
+    const conflict = await prisma.tourPackage.findUnique({ where: { slug: finalSlug } });
+    if (conflict) {
+      finalSlug = `${finalSlug}-${Date.now().toString(36)}`;
+    }
+
+    if (icon !== undefined && icon !== null && icon !== "" && !VALID_ICONS.includes(String(icon))) {
+      return NextResponse.json(
+        { error: `Invalid icon. Must be one of: ${VALID_ICONS.join(", ")}` },
+        { status: 400 }
+      );
+    }
+    if (cls !== undefined && cls !== null && cls !== "" && !VALID_THEMES.includes(String(cls))) {
+      return NextResponse.json(
+        { error: `Invalid theme. Must be one of: ${VALID_THEMES.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
+    const maxSort = await prisma.tourPackage.aggregate({ _max: { sortOrder: true } });
+
+    const created = await prisma.tourPackage.create({
+      data: {
+        slug: finalSlug,
+        title: String(title).trim(),
+        subtitle: subtitle ? String(subtitle).trim() : null,
+        price: String(price).trim(),
+        priceNote: priceNote ? String(priceNote).trim() : null,
+        duration: duration ? String(duration).trim() : null,
+        groupType: groupType ? String(groupType).trim() : null,
+        languages: languages ? String(languages).trim() : null,
+        badge: badge ? String(badge).trim() : null,
+        // Independent content fields — card shown on Tours page, full on detail page.
+        cardDescription: cardDescription
+          ? String(cardDescription).trim()
+          : description
+            ? String(description).split(/\n\n+/)[0].trim()
+            : null,
+        fullDescription: fullDescription
+          ? String(fullDescription).trim()
+          : description
+            ? String(description).trim()
+            : null,
+        description: description
+          ? String(description).trim()
+          : fullDescription
+            ? String(fullDescription).trim()
+            : null,
+        icon: icon ? String(icon).trim() : "compass",
+        cls: cls ? String(cls).trim() : "t1",
+        cardImage: cardImage ? String(cardImage).trim() : null,
+        highlights: typeof highlights === "string" ? highlights : JSON.stringify(highlights ?? []),
+        included: typeof included === "string" ? included : JSON.stringify(included ?? []),
+        notIncluded:
+          typeof notIncluded === "string" ? notIncluded : JSON.stringify(notIncluded ?? []),
+        itinerary: typeof itinerary === "string" ? itinerary : JSON.stringify(itinerary ?? []),
+        mapCenter:
+          typeof mapCenter === "string"
+            ? mapCenter
+            : JSON.stringify(mapCenter ?? { lat: 31.6295, lng: -7.988, zoom: 15 }),
+        active: active === undefined ? true : Boolean(active),
+        sortOrder: sortOrder !== undefined ? Number(sortOrder) : (maxSort._max.sortOrder ?? -1) + 1,
+      },
+    });
+
+    return NextResponse.json(
+      { success: true, message: `Tour "${created.title}" created.`, tour: created },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    console.error("Error creating tour package:", error);
+    return NextResponse.json(
+      { error: "Failed to create tour package", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE: Remove a tour package (?id= or ?slug=)
+export async function DELETE(req: Request) {
+  try {
+    if (!(await isAuthorized())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    const slug = searchParams.get("slug");
+
+    if (!id && !slug) {
+      return NextResponse.json({ error: "id or slug is required" }, { status: 400 });
+    }
+
+    const target = id
+      ? await prisma.tourPackage.findUnique({ where: { id } })
+      : await prisma.tourPackage.findUnique({ where: { slug: slug! } });
+
+    if (!target) {
+      return NextResponse.json({ error: "Tour package not found" }, { status: 404 });
+    }
+
+    await prisma.tourPackage.delete({ where: { id: target.id } });
+
+    return NextResponse.json({
+      success: true,
+      message: `Tour "${target.title}" deleted.`,
+    });
+  } catch (error: any) {
+    console.error("Error deleting tour package:", error);
+    return NextResponse.json(
+      { error: "Failed to delete tour package", details: error.message },
       { status: 500 }
     );
   }

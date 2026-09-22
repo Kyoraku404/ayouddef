@@ -4,6 +4,10 @@
  * Provides instant, zero-latency local intelligence for visitors.
  */
 
+import { masterKnowledge } from "./marrakech-master-kb";
+
+export type ChatLang = "en" | "fr" | "es" | "ar";
+
 export interface KnowledgeTopic {
   id: string;
   category: "monument" | "food" | "souk" | "safety" | "logistics" | "tours" | "culture" | "chat";
@@ -12,17 +16,28 @@ export interface KnowledgeTopic {
     en: string;
     fr: string;
     es: string;
+    ar?: string;
   };
   answer: {
     en: string;
     fr: string;
     es: string;
+    ar?: string;
   };
   relatedAction?: {
     type: "tour" | "whatsapp" | "reservation";
-    label: { en: string; fr: string; es: string };
+    label: { en: string; fr: string; es: string; ar?: string };
     link: string;
   };
+}
+
+/** Resolve a localized string with English fallback (for topics without Arabic text). */
+export function localizeText(
+  record: { en: string; fr: string; es: string; ar?: string },
+  lang: ChatLang
+): string {
+  if (lang === "ar") return record.ar || record.en;
+  return record[lang] || record.en;
 }
 
 export const marrakechKnowledge: KnowledgeTopic[] = [
@@ -429,7 +444,7 @@ export const marrakechKnowledge: KnowledgeTopic[] = [
       es: "Los 7 Tours Privados con Zaky",
     },
     answer: {
-      en: `**Mohamed Zaky Bentabaa** is a second-generation licensed guide (License #2007) with a Master's degree in Tourism Management. Here are his 7 signature experiences:
+      en: `**Mohamed Zaky Bentabaa** is a second-generation official guide (License #2007) with a Master's degree in Tourism Management. Here are his 7 signature experiences:
 
 1. **Medina, Souks & Heritage (3-4h)**: 700 MAD (~€70) per private group.
 2. **Souks & Local Markets (3h)**: 700 MAD (~€70) — artisan discovery, no commission traps.
@@ -529,7 +544,7 @@ Tours **100% privados**, a tu propio ritmo y con atención directa de Zaky.`,
 3. **Essaouira Mogador (2.5h drive)**: UNESCO-protected coastal fortress city on the Atlantic, blue-and-white fishing port, fresh grilled fish stalls, and cool sea breezes.
 4. **Ouzoud Waterfalls (2.5h drive)**: Magnificent 110-meter cascading waterfalls surrounded by lush olive trees and playful wild Barbary macaque monkeys.
 
-*Private excursion bookings with licensed driver/guide guarantee departure flexibility and zero bus tourist traps.*`,
+*Private excursion bookings with official driver/guide guarantee departure flexibility and zero bus tourist traps.*`,
       fr: `**Les Plus Belles Excursions depuis Marrakech** :
 1. **Désert d'Agafay (à 45 min)** : Désert minéral rocheux face aux sommets de l'Atlas. Idéal pour une balade à dos de dromadaire au coucher du soleil, un tour en quad et un dîner magique sous les étoiles sous une tente nomade.
 2. **Vallée de l'Ourika & Haut Atlas (à 1h)** : Fraîcheur des cascades de Setti Fatma, villages berbères en pisé et coopératives artisanales d'huile d'argan.
@@ -645,7 +660,7 @@ I'm here to help you experience the best of the Red City:
 - 🛍️ **Souks & Bargaining**: The 50% haggling rule, navigating artisan quarters safely.
 - 🚕 **Taxis & Airport**: Meter rules, airport transfers, currency tips (10 MAD ≈ 1 EUR).
 - 🌿 **Hammams & Day Trips**: Traditional bathhouses, Agafay stone desert, Ourika Valley, Essaouira.
-- ✨ **Zaky's Private Tours**: Tailored experiences with licensed guide Mohamed Zaky (License #2007).
+- ✨ **Zaky's Private Tours**: Tailored experiences with official guide Mohamed Zaky (License #2007).
 
 What can I help you discover today?`,
       fr: `**Marhaba ! (Bienvenue !)** 👋
@@ -718,7 +733,7 @@ Comment se passe votre séjour ou vos préparatifs, et que puis-je faire pour vo
     },
     answer: {
       en: `**About Guide Zaky & Virtual Concierge**:
-- **Mohamed Zaky Bentabaa** is a 2nd-generation licensed Moroccan national guide (License #2007), born and raised in the heart of the Marrakech Medina.
+- **Mohamed Zaky Bentabaa** is a 2nd-generation official Moroccan national guide (License #2007), born and raised in the heart of the Marrakech Medina.
 - He holds a **Master's degree in Tourism Management** and has over 15 years of experience guiding visitors through private, authentic historical, cultural, and souk immersions.
 - **I am his dedicated AI Concierge**, built to provide you with verified local knowledge, answer travel questions, and connect you directly with Zaky for private tours.
 
@@ -830,6 +845,10 @@ Que tu aventura en Marrakech esté llena de hospitalidad, belleza y momentos ino
 7. 🌿 **Hammams & Day Trips**: "Traditional hammam ritual", "Agafay Desert sunset", "Ourika Valley & Atlas".
 8. ☀️ **Best Time & Tipping**: "When is the best season to visit?", "How much should I tip?".
 9. ✨ **Zaky's Private Tours**: "Private tour prices", "Custom guided itineraries with Zaky".
+10. 🌊 **Coast & Mountains**: "Essaouira or Oualidia?", "Ourika Valley", "Agafay — is it the Sahara?".
+11. 🗣️ **Darija & Bargaining**: "How do I bargain?", "How do I say ... in Darija?".
+
+I also understand Arabic and Darija (Arabic script or Arabizi like "bch7al hada?") — just write naturally!
 
 Type any question, or click one of the quick buttons above!`,
       fr: `Voici ce que vous pouvez me demander à tout moment :
@@ -843,6 +862,10 @@ Type any question, or click one of the quick buttons above!`,
 7. 🌿 **Hammams & Excursions** : « Rituel du hammam au savon noir », « Excursion désert d'Agafay ou Ourika ».
 8. ☀️ **Météo & Pourboires** : « Meilleure période pour venir ? », « Quel pourboire donner ? ».
 9. ✨ **Visites Privées Zaky** : « Tarifs des circuits privés », « Réserver une visite avec Zaky ».
+10. 🌊 **Côte & Montagnes** : « Essaouira ou Oualidia ? », « Vallée de l'Ourika », « Agafay, est-ce le Sahara ? ».
+11. 🗣️ **Darija & Négociation** : « Comment négocier ? », « Comment dire ... en darija ? ».
+
+Je comprends aussi l'arabe et la darija (alphabet arabe ou Arabizi comme « bch7al hada ? ») — écrivez naturellement !
 
 Tapez simplement votre question ou cliquez sur l'un des boutons en haut !`,
       es: `Esto es todo lo que puedes preguntarme en cualquier momento:
@@ -856,6 +879,10 @@ Tapez simplement votre question ou cliquez sur l'un des boutons en haut !`,
 7. 🌿 **Hammams y Excursiones**: "Cómo funciona el hammam tradicional", "Desierto de Agafay", "Valle de Ourika".
 8. ☀️ **Clima y Propinas**: "¿Cuál es la mejor época para viajar?", "¿Cuánto dar de propina?".
 9. ✨ **Tours Privados con Zaky**: "Precios de los tours privados", "Reservar visita con guía oficial".
+10. 🌊 **Costa y Montañas**: "¿Essaouira u Oualidia?", "Valle de Ourika", "¿Agafay es el Sáhara?".
+11. 🗣️ **Darija y Regateo**: "¿Cómo regateo?", "¿Cómo se dice ... en darija?".
+
+También entiendo árabe y darija (alfabeto árabe o Arabizi como "bch7al hada?") — ¡escribe con naturalidad!
 
 ¡Escribe lo que quieras saber o haz clic en los accesos rápidos de arriba!`,
     },
@@ -873,8 +900,66 @@ const STOP_WORDS = new Set([
   "le", "la", "les", "un", "une", "des", "du", "de", "d", "en", "dans", "sur", "pour", "par",
   "est", "sont", "et", "ou", "qui", "quoi", "ce", "cet", "cette", "ces", "il", "elle", "ils", "elles", "il y a",
   "el", "la", "los", "las", "un", "una", "unos", "unas", "de", "del", "en", "para", "por",
-  "es", "son", "y", "o", "donde", "cuando", "se", "hay", "mas"
+  "es", "son", "y", "o", "donde", "cuando", "se", "hay", "mas",
+  // Darija / Arabizi function words
+  "wach", "fin", "kayn", "kayna", "chno", "chnou", "kifach", "bghit", "bghiti", "dyali", "dyal",
+  "liya", "lia", "hada", "hadi", "hadou", "ana", "nta", "nti", "b7al", "bhal", "ou", "w", "wa",
+  "3afak", "afak", "chokran", "la", "ah", "wach", "kidayr", "labes",
+  // Arabic function words (normalized forms)
+  "في", "فى", "من", "علي", "على", "الي", "الي", "الي", "ما", "ماذا", "كيف", "اين", "هل",
+  "و", "او", "مع", "هذا", "هذه", "هاذا", "التي", "الذي", "فيه", "فيها", "شنو", "فين", "كاين",
+  "كاينه", "واش", "بغيت", "ديالي", "ديال", "ليا", "هادا", "هادي", "انا", "شحال", "بشحال",
 ]);
+
+/**
+ * Normalize text for matching across Latin, Arabic script and Arabizi.
+ * - lowercases, unifies apostrophes
+ * - strips Latin diacritics (é→e) but KEEPS Arabic letters
+ * - normalizes Arabic: alef forms→ا, ة→ه, ى→ي, removes tashkeel/kashida
+ * - keeps digits (Arabizi 3/7/9 stay matchable) and Arabic block chars
+ */
+export function normalizeKbText(raw: string): string {
+  return raw
+    .toLowerCase()
+    .replace(/['’]/g, " ")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[أإآٱ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .replace(/[\u064b-\u0652\u0640]/g, "");
+}
+
+/** Keep Latin alphanumerics AND Arabic script for tokenization. */
+function tokenizeAlpha(normalized: string): string {
+  return normalized.replace(/[^a-z0-9\u0600-\u06ff\s]/g, " ").trim();
+}
+
+// Strong, unambiguous Darija/Arabizi markers → answer in Arabic/Darija.
+const AR_STRONG_MARKERS = [
+  "bghit", "bghiti", "bchhal", "bch7al", "ch7al", "wach", "chno", "chnou",
+  "kifach", "3afak", "3likom", "chokran", "shukran", "darija", "arabizi",
+  "labas", "lhamdollah", "wakha", "bzzaf", "taman", "dyali", "fhemt",
+  "sme7", "kantferrej", "tn9es", "mtaf9in", "nmchi", "tleft", "nkhlliha",
+  "l7sab", "lkhrita", "lmdina", "tssawer", "tswir", "l7em", "lma",
+];
+
+/**
+ * Detect Arabic-script or Latin-Darija (Arabizi) queries so the bot answers
+ * in the visitor's language even when the site UI is EN/FR/ES.
+ * Returns "ar" or null (caller falls back to UI language).
+ */
+export function detectQueryLang(query: string): "ar" | null {
+  if (!query) return null;
+  if (/[\u0600-\u06FF]/.test(query)) return "ar";
+  const low = ` ${query.toLowerCase()} `;
+  // Digits embedded in words (bch7al, 3afak, l7sab) = Arabizi by definition
+  if (/[a-z][3579]|[3579][a-z]/.test(low.replace(/\s+/g, ""))) return "ar";
+  for (const m of AR_STRONG_MARKERS) {
+    if (low.includes(m)) return "ar";
+  }
+  return null;
+}
 
 /**
  * Intelligent Query Matcher
@@ -882,29 +967,28 @@ const STOP_WORDS = new Set([
  */
 export function findBestMarrakechAnswer(
   query: string,
-  lang: "en" | "fr" | "es"
+  lang: ChatLang
 ): { topic: KnowledgeTopic; score: number } | null {
   if (!query || query.trim().length === 0) return null;
 
-  // 1. Clean and normalize query
-  const cleanRaw = query
-    .toLowerCase()
-    .replace(/['’]/g, " ")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+  // 1. Clean and normalize query (Latin + Arabic + Arabizi aware)
+  const cleanRaw = normalizeKbText(query);
 
-  // Clean alphanumeric string with spaces for tokenization
-  const cleanAlpha = cleanRaw.replace(/[^a-z0-9\s]/g, " ").trim();
+  // Clean string with spaces for tokenization (keeps Arabic script + digits)
+  const cleanAlpha = tokenizeAlpha(cleanRaw);
   const words = cleanAlpha.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return null;
 
   let bestMatch: { topic: KnowledgeTopic; score: number } | null = null;
   let highestScore = 0;
 
-  for (const topic of marrakechKnowledge) {
+  const allTopics = [...marrakechKnowledge, ...masterKnowledge];
+
+  for (const topic of allTopics) {
     let score = 0;
 
     for (const kw of topic.keywords) {
-      const normKw = kw.toLowerCase().replace(/['’]/g, " ").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      const normKw = normalizeKbText(kw).trim();
       const kwWords = normKw.split(/\s+/).filter(Boolean);
 
       if (kwWords.length > 1) {
@@ -942,8 +1026,9 @@ export function findBestMarrakechAnswer(
       }
     }
 
-    // Title match
-    const titleText = topic.title[lang]?.toLowerCase().replace(/['’]/g, " ").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ") || "";
+    // Title match (localized, English fallback)
+    const rawTitle = localizeText(topic.title, lang);
+    const titleText = tokenizeAlpha(normalizeKbText(rawTitle));
     if (titleText && cleanAlpha.includes(titleText)) {
       score += 15;
     } else if (titleText) {

@@ -110,7 +110,7 @@ export async function sendReservationNotificationEmail(reservation: ReservationI
         <p style="margin-top: 30px; font-size: 14px; color: #777;">
           Warm regards,<br>
           <strong>Zaky</strong><br>
-          Licensed Tour Guide, Marrakesh, Morocco
+          Official Tour Guide, Marrakesh, Morocco
         </p>
       </div>
     </div>

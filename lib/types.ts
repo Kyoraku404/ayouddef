@@ -38,6 +38,8 @@ export interface Tour {
   fullDescription: string[];
   cls: string;
   icon: "gate" | "basket" | "palace" | "tea" | "monument" | "compass" | "road";
+  // Optional cover photo for the main Tours card. When set, it replaces the icon visual.
+  cardImage?: string;
   duration: string;
   groupType: string;
   languages: string;

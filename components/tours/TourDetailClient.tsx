@@ -108,17 +108,32 @@ export function TourDetailClient({ tour, otherTours }: TourDetailClientProps) {
                 <span>{tour.languages}</span>
               </div>
 
-              <div className="flex items-center gap-1.5 text-gold font-semibold">
-                <Star className="w-4 h-4 fill-gold text-gold" />
-                <span>5.0 (41 reviews)</span>
-              </div>
-
               {formattedPrice && (
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-sand text-terracotta-dark font-bold text-xs">
                   <Tag className="w-3.5 h-3.5" />
                   <span>{formattedPrice}</span>
                 </div>
               )}
+            </div>
+
+            {/* Quick Mobile Action Buttons */}
+            <div className="mt-4 flex sm:hidden items-center gap-2.5">
+              <Link
+                href={`/?tour=${encodeURIComponent(tour.slug)}#reservation`}
+                className="flex-1 btn btn-primary py-2.5 px-4 text-xs font-semibold justify-center text-center"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>{t.tourDetail.bookThisTour}</span>
+              </Link>
+              <a
+                href={whatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-dark py-2.5 px-3.5 text-xs font-semibold flex items-center justify-center gap-1.5"
+                aria-label="WhatsApp Inquiry"
+              >
+                <span>WhatsApp</span>
+              </a>
             </div>
           </div>
 
@@ -233,7 +248,7 @@ export function TourDetailClient({ tour, otherTours }: TourDetailClientProps) {
 
                 {/* Primary CTA: Jump to Booking form on Home page with tour preselected */}
                 <Link
-                  href={`/#reservation`}
+                  href={`/?tour=${encodeURIComponent(tour.slug)}#reservation`}
                   className="w-full btn btn-primary flex items-center justify-center gap-2 py-4 mb-3"
                 >
                   <Calendar className="w-4 h-4" />

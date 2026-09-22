@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { TourIcon } from "../tours/TourCard";
 
 export interface ItineraryStopItem {
   stopNumber: number;
@@ -24,6 +25,14 @@ export interface TourPackageItem {
   languages: string | null;
   badge: string | null;
   description: string | null;
+  // Independent content fields: card text (Tours page ONLY) vs full text (detail page ONLY).
+  cardDescription: string | null;
+  fullDescription: string | null;
+  // Card visual: icon + gradient theme, editable per tour.
+  icon: string | null;
+  cls: string | null;
+  // Card cover photo (main Tours page). Null = icon/gradient visual.
+  cardImage: string | null;
   highlights: string | null;
   included: string | null;
   notIncluded: string | null;
@@ -32,6 +41,26 @@ export interface TourPackageItem {
   active: boolean;
   sortOrder: number;
 }
+
+export const TOUR_ICON_OPTIONS = [
+  { id: "gate", label: "Gate / Medina" },
+  { id: "basket", label: "Basket / Souks" },
+  { id: "palace", label: "Palace / Heritage" },
+  { id: "tea", label: "Tea / Night" },
+  { id: "monument", label: "Monument / Signature" },
+  { id: "compass", label: "Compass / Custom" },
+  { id: "road", label: "Road / Escape" },
+];
+
+export const TOUR_THEME_OPTIONS = [
+  { id: "t1", label: "Terracotta" },
+  { id: "t2", label: "Gold" },
+  { id: "t3", label: "Dark Brown" },
+  { id: "t4", label: "Auburn" },
+  { id: "t5", label: "Sand Gold" },
+  { id: "t6", label: "Coffee" },
+  { id: "t7", label: "Amber" },
+];
 
 export interface LandmarkPreset {
   id: string;
@@ -194,7 +223,8 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
   const [activePreviewStopIndex, setActivePreviewStopIndex] = useState<number | null>(0);
   const [previewMapType, setPreviewMapType] = useState<"k" | "h" | "m">("k");
 
-  // Modal edit form
+  // Modal edit form — cardDescription and fullDescription are INDEPENDENT:
+  // one is never derived from or written into the other.
   const [modalForm, setModalForm] = useState({
     title: "",
     subtitle: "",
@@ -204,7 +234,11 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
     groupType: "",
     badge: "",
     active: true,
-    description: "",
+    cardDescription: "",
+    fullDescription: "",
+    icon: "compass",
+    cls: "t1",
+    cardImage: "",
     includedText: "",
     notIncludedText: "",
     itineraryStops: [] as ItineraryStopItem[],
@@ -212,6 +246,15 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
     mapLng: -7.988,
     mapZoom: 15,
   });
+
+  // Create vs edit mode + delete confirm
+  const [isCreating, setIsCreating] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<TourPackageItem | null>(null);
+  const [isDeletingTour, setIsDeletingTour] = useState(false);
+
+  // Cover photo upload
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverFileRef = React.useRef<HTMLInputElement | null>(null);
 
   const loadTours = async () => {
     setLoading(true);
@@ -289,6 +332,7 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
   // Open full edit modal
   const openEditModal = (tour: TourPackageItem, initialTab?: "pricing" | "description" | "included" | "map") => {
     setEditingTour(tour);
+    setIsCreating(false);
     setModalTab(initialTab || "pricing");
     setActivePreviewStopIndex(0);
     setSelectedPreset("");
@@ -333,6 +377,9 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
       } catch {}
     }
 
+    // Prefill each text from its OWN column (fallbacks only for legacy rows).
+    // Card text never feeds the full text and vice versa.
+    const legacyFirstPara = (tour.description || "").split(/\n\n+/)[0]?.trim() || "";
     setModalForm({
       title: tour.title,
       subtitle: tour.subtitle || "",
@@ -342,7 +389,11 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
       groupType: tour.groupType || "",
       badge: tour.badge || "",
       active: tour.active,
-      description: tour.description || "",
+      cardDescription: tour.cardDescription ?? legacyFirstPara,
+      fullDescription: tour.fullDescription ?? tour.description ?? "",
+      icon: tour.icon || "compass",
+      cls: tour.cls || "t1",
+      cardImage: tour.cardImage || "",
       includedText: incList.join("\n"),
       notIncludedText: notIncList.join("\n"),
       itineraryStops: stops,
@@ -350,6 +401,85 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
       mapLng: mapCenter.lng || -7.988,
       mapZoom: mapCenter.zoom || 15,
     });
+  };
+
+  // Open blank modal to CREATE a new tour
+  const openCreateModal = () => {
+    setEditingTour({
+      id: "",
+      slug: "new-tour",
+      title: "",
+      subtitle: null,
+      price: "",
+      priceNote: null,
+      duration: null,
+      groupType: null,
+      languages: null,
+      badge: null,
+      description: null,
+      cardDescription: null,
+      fullDescription: null,
+      icon: "compass",
+      cls: "t1",
+      cardImage: null,
+      highlights: null,
+      included: null,
+      notIncluded: null,
+      itinerary: null,
+      mapCenter: null,
+      active: true,
+      sortOrder: tours.length,
+    });
+    setIsCreating(true);
+    setModalTab("pricing");
+    setActivePreviewStopIndex(null);
+    setSelectedPreset("");
+    setSearchLocationText("");
+    setModalForm({
+      title: "",
+      subtitle: "",
+      price: "",
+      priceNote: "",
+      duration: "",
+      groupType: "",
+      badge: "",
+      active: true,
+      cardDescription: "",
+      fullDescription: "",
+      icon: "compass",
+      cls: "t1",
+      cardImage: "",
+      includedText: "",
+      notIncludedText: "",
+      itineraryStops: [],
+      mapLat: 31.6295,
+      mapLng: -7.988,
+      mapZoom: 15,
+    });
+  };
+
+  // Upload a cover photo file -> store URL in the form (no SiteImage record)
+  const handleCoverFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCover(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/adminzaky/images/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+      setModalForm((prev) => ({ ...prev, cardImage: data.url }));
+      notify("Cover photo uploaded! Save the tour to publish it.");
+    } catch (err: unknown) {
+      notify(err instanceof Error ? err.message : "Upload failed", "error");
+    } finally {
+      setUploadingCover(false);
+      if (coverFileRef.current) coverFileRef.current.value = "";
+    }
   };
 
   // Itinerary Stops Helpers
@@ -482,10 +612,19 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
     }
   };
 
-  // Commit full edit
+  // Commit full edit (PUT) or create (POST). Card + Full texts are sent as
+  // SEPARATE fields and stored in separate columns — never mixed.
   const handleSaveModal = async () => {
     if (!editingTour) return;
-    setSavingId(editingTour.id);
+    if (!modalForm.title.trim()) {
+      notify("Tour title is required", "error");
+      return;
+    }
+    if (isCreating && !modalForm.price.trim()) {
+      notify("Price is required (e.g. 700 MAD)", "error");
+      return;
+    }
+    setSavingId(isCreating ? "new" : editingTour.id);
 
     // Prepare arrays
     const incArray = modalForm.includedText
@@ -505,7 +644,7 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
     };
 
     const payload = {
-      id: editingTour.id,
+      ...(isCreating ? {} : { id: editingTour.id }),
       title: modalForm.title,
       subtitle: modalForm.subtitle,
       price: modalForm.price,
@@ -514,7 +653,11 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
       groupType: modalForm.groupType,
       badge: modalForm.badge,
       active: modalForm.active,
-      description: modalForm.description,
+      cardDescription: modalForm.cardDescription,
+      fullDescription: modalForm.fullDescription,
+      icon: modalForm.icon,
+      cls: modalForm.cls,
+      cardImage: modalForm.cardImage,
       included: JSON.stringify(incArray),
       notIncluded: JSON.stringify(notIncArray),
       itinerary: JSON.stringify(modalForm.itineraryStops),
@@ -523,30 +666,61 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
 
     try {
       const res = await fetch("/api/adminzaky/tours", {
-        method: "PUT",
+        method: isCreating ? "POST" : "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Update failed");
+      if (!res.ok) throw new Error(data.error || (isCreating ? "Create failed" : "Update failed"));
 
-      setTours((prev) =>
-        prev.map((t) =>
-          t.id === editingTour.id
-            ? {
-                ...t,
-                ...payload,
-              }
-            : t
-        )
-      );
-      notify(`Tour package "${modalForm.title}" & map successfully saved in Neon PostgreSQL!`);
+      if (isCreating && data.tour) {
+        setTours((prev) => [...prev, data.tour]);
+        notify(`New tour "${modalForm.title}" created with its own card + full texts!`);
+      } else {
+        setTours((prev) =>
+          prev.map((t) =>
+            t.id === editingTour.id
+              ? {
+                  ...t,
+                  ...payload,
+                }
+              : t
+          )
+        );
+        notify(`Tour package "${modalForm.title}" saved — card & full texts stored separately!`);
+      }
       setEditingTour(null);
+      setIsCreating(false);
     } catch (err: any) {
       notify(err.message || "Failed to save tour package", "error");
     } finally {
       setSavingId(null);
+    }
+  };
+
+  // Delete a tour package
+  const handleDeleteTour = async () => {
+    if (!deleteTarget) return;
+    setIsDeletingTour(true);
+    try {
+      const res = await fetch(
+        `/api/adminzaky/tours?id=${encodeURIComponent(deleteTarget.id)}`,
+        { method: "DELETE" }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Delete failed");
+      setTours((prev) => prev.filter((t) => t.id !== deleteTarget.id));
+      if (editingTour?.id === deleteTarget.id) {
+        setEditingTour(null);
+        setIsCreating(false);
+      }
+      setDeleteTarget(null);
+      notify(`Tour "${deleteTarget.title}" deleted.`);
+    } catch (err: any) {
+      notify(err.message || "Failed to delete tour", "error");
+    } finally {
+      setIsDeletingTour(false);
     }
   };
 
@@ -660,6 +834,27 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
             <span>🔄</span>
             <span>Refresh</span>
           </button>
+
+          <button
+            onClick={openCreateModal}
+            style={{
+              padding: "10px 18px",
+              background: "linear-gradient(135deg, #d4a359 0%, #b38237 100%)",
+              border: "none",
+              borderRadius: "10px",
+              color: "#1a140d",
+              fontSize: "13px",
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              boxShadow: "0 4px 15px rgba(212, 163, 89, 0.3)",
+            }}
+          >
+            <span style={{ fontSize: "15px" }}>+</span>
+            <span>New Tour</span>
+          </button>
         </div>
       </div>
 
@@ -693,10 +888,10 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
         </div>
         <div>
           <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: 700, color: "#f5eee4" }}>
-            Éditeur Complet de Circuits, Tarifs, Inclusions & Carte Itinéraire
+            Éditeur Complet de Circuits, Tarifs, Textes & Carte Itinéraire
           </h4>
           <p style={{ margin: 0, fontSize: "12.5px", color: "#a89b8c", lineHeight: 1.4 }}>
-            Modifiez le prix, la description complète, ce qui est inclus/non inclus, ainsi que tous les arrêts de la carte interactive (nom, durée, coordonnées GPS). Tout est synchronisé en temps réel avec votre base PostgreSQL Neon.
+            Chaque circuit possède <strong style={{ color: "#ffd79a" }}>2 textes indépendants</strong> : la <strong style={{ color: "#ffd79a" }}>Card Description</strong> (carte, page Tours) et la <strong style={{ color: "#ffd79a" }}>Full Tour Description</strong> (page détaillée après &quot;Discover More&quot;). Modifier l&apos;un ne touche jamais l&apos;autre. Prix, badge, icône, inclus et carte GPS restent synchronisés avec PostgreSQL Neon.
           </p>
         </div>
       </div>
@@ -737,6 +932,7 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
               onQuickSave={handleQuickSave}
               onToggleActive={handleToggleActive}
               onOpenEdit={openEditModal}
+              onDelete={(t) => setDeleteTarget(t)}
             />
           ))}
         </div>
@@ -786,14 +982,19 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
             >
               <div>
                 <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "#f5eee4" }}>
-                  Modifier Circuit : {editingTour.title}
+                  {isCreating ? "Nouveau Circuit" : `Modifier Circuit : ${editingTour.title}`}
                 </h3>
                 <span style={{ fontSize: "11.5px", color: "#d4a359", fontFamily: "monospace" }}>
-                  slug: /{editingTour.slug}
+                  {isCreating
+                    ? "slug généré automatiquement depuis le titre"
+                    : `slug: /${editingTour.slug}`}
                 </span>
               </div>
               <button
-                onClick={() => setEditingTour(null)}
+                onClick={() => {
+                  setEditingTour(null);
+                  setIsCreating(false);
+                }}
                 style={{
                   background: "none",
                   border: "none",
@@ -854,7 +1055,7 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
                   whiteSpace: "nowrap",
                 }}
               >
-                📝 Description & Récit
+                📝 Card & Page Texts
               </button>
 
               <button
@@ -1079,23 +1280,261 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
                       </button>
                     </div>
                   </div>
+
+                  {/* Card visual: icon + color theme (per tour, independent) */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                    <div>
+                      <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#d8cebe", marginBottom: "6px" }}>
+                        Icône de la Carte (Image)
+                      </label>
+                      <select
+                        value={modalForm.icon}
+                        onChange={(e) => setModalForm({ ...modalForm, icon: e.target.value })}
+                        style={{
+                          width: "100%",
+                          padding: "10px 12px",
+                          background: "#14100c",
+                          border: "1px solid rgba(212, 163, 89, 0.25)",
+                          borderRadius: "8px",
+                          color: "#f5eee4",
+                          fontSize: "13px",
+                        }}
+                      >
+                        {TOUR_ICON_OPTIONS.map((opt) => (
+                          <option key={opt.id} value={opt.id}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#d8cebe", marginBottom: "6px" }}>
+                        Couleur de la Carte (Thème)
+                      </label>
+                      <select
+                        value={modalForm.cls}
+                        onChange={(e) => setModalForm({ ...modalForm, cls: e.target.value })}
+                        style={{
+                          width: "100%",
+                          padding: "10px 12px",
+                          background: "#14100c",
+                          border: "1px solid rgba(212, 163, 89, 0.25)",
+                          borderRadius: "8px",
+                          color: "#f5eee4",
+                          fontSize: "13px",
+                        }}
+                      >
+                        {TOUR_THEME_OPTIONS.map((opt) => (
+                          <option key={opt.id} value={opt.id}>
+                            {opt.id} — {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Live card visual preview (same icon + theme as the website card) */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      background: "#14100c",
+                      border: "1px solid rgba(212, 163, 89, 0.2)",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                    }}
+                  >
+                    <div
+                      className={`tour-photo ${modalForm.cls}`}
+                      style={{ width: "64px", height: "52px", borderRadius: "10px", flexShrink: 0 }}
+                    >
+                      <svg
+                        viewBox="0 0 64 64"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                        style={{ width: "60%", height: "60%" }}
+                      >
+                        <TourIcon type={modalForm.icon as "gate" | "basket" | "palace" | "tea" | "monument" | "compass" | "road"} />
+                      </svg>
+                    </div>
+                    <span style={{ fontSize: "12px", color: "#a89b8c", lineHeight: 1.5 }}>
+                      Aperçu en direct de l&apos;icône et de la couleur affichées sur la carte du site. Le design des cartes reste inchangé — seule l&apos;icône et la couleur sont personnalisables.
+                    </span>
+                  </div>
+
+                  {/* Cover photo for the main Tours card */}
+                  <div
+                    style={{
+                      background: "#14100c",
+                      border: "1px solid rgba(212, 163, 89, 0.2)",
+                      borderRadius: "10px",
+                      padding: "12px 14px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                      <label style={{ fontSize: "12px", fontWeight: 700, color: "#d8cebe" }}>
+                        🖼️ Photo de couverture (carte, page Tours)
+                      </label>
+                      {modalForm.cardImage ? (
+                        <button
+                          type="button"
+                          onClick={() => setModalForm({ ...modalForm, cardImage: "" })}
+                          style={{
+                            padding: "6px 12px",
+                            background: "rgba(239, 68, 68, 0.12)",
+                            border: "1px solid rgba(239, 68, 68, 0.3)",
+                            borderRadius: "6px",
+                            color: "#fca5a5",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          ✕ Retirer (retour à l&apos;icône)
+                        </button>
+                      ) : null}
+                    </div>
+                    <p style={{ margin: 0, fontSize: "11.5px", color: "#a89b8c", lineHeight: 1.5 }}>
+                      Quand une photo est définie, elle remplace l&apos;icône sur la carte. Sans photo, la carte garde son design icône + couleur.
+                    </p>
+
+                    {modalForm.cardImage ? (
+                      <div
+                        style={{
+                          position: "relative",
+                          width: "100%",
+                          height: "150px",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          background: "#000",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={modalForm.cardImage}
+                          alt="Cover preview"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </div>
+                    ) : null}
+
+                    <input
+                      type="file"
+                      ref={coverFileRef}
+                      onChange={handleCoverFileUpload}
+                      accept="image/png,image/jpeg,image/webp,image/jpg"
+                      style={{ display: "none" }}
+                    />
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                      <button
+                        type="button"
+                        onClick={() => coverFileRef.current?.click()}
+                        disabled={uploadingCover}
+                        style={{
+                          padding: "9px 16px",
+                          background: "rgba(212, 163, 89, 0.15)",
+                          border: "1px solid rgba(212, 163, 89, 0.35)",
+                          borderRadius: "8px",
+                          color: "#ffd79a",
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          cursor: uploadingCover ? "wait" : "pointer",
+                        }}
+                      >
+                        {uploadingCover ? "Envoi en cours..." : "⬆ Uploader une photo"}
+                      </button>
+                      <input
+                        type="text"
+                        value={modalForm.cardImage}
+                        onChange={(e) => setModalForm({ ...modalForm, cardImage: e.target.value })}
+                        placeholder="/images/ma-photo.jpg ou https://..."
+                        style={{
+                          flex: 1,
+                          minWidth: "200px",
+                          padding: "9px 12px",
+                          background: "#0e0c0a",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          borderRadius: "8px",
+                          color: "#f5eee4",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {/* SUBTAB 2: DESCRIPTION */}
+              {/* SUBTAB 2: CARD + FULL DESCRIPTIONS (independent) */}
               {modalTab === "description" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                  <div
+                    style={{
+                      background: "rgba(212, 163, 89, 0.08)",
+                      border: "1px solid rgba(212, 163, 89, 0.25)",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                      fontSize: "12px",
+                      color: "#e8ded2",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    🗂️ <strong>2 textes 100% indépendants.</strong> La <strong>Card Description</strong> s&apos;affiche <strong>uniquement</strong> sur la carte (page Tours). La <strong>Full Tour Description</strong> s&apos;affiche <strong>uniquement</strong> sur la page détaillée (après &quot;Discover More&quot;). Modifier l&apos;un ne modifie jamais l&apos;autre.
+                  </div>
+
                   <div>
-                    <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#d8cebe", marginBottom: "6px" }}>
-                      Description Complète & Récit du Circuit (Paragraphes)
-                    </label>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "6px" }}>
+                      <label style={{ fontSize: "12px", fontWeight: 700, color: "#d8cebe" }}>
+                        🃏 Card Description <span style={{ fontWeight: 400, color: "#a89b8c" }}>— carte, page Tours (court)</span>
+                      </label>
+                      <span style={{ fontSize: "11px", color: modalForm.cardDescription.length > 280 ? "#fca5a5" : "#8e8071" }}>
+                        {modalForm.cardDescription.length} caractères
+                      </span>
+                    </div>
                     <p style={{ margin: "0 0 8px 0", fontSize: "11.5px", color: "#a89b8c" }}>
-                      Séparez vos paragraphes par une ligne vide. Ce texte est affiché dans la section &quot;Experience Overview&quot; de la page détaillée.
+                      Texte concis affiché dans la carte du circuit. Idéal : 150–250 caractères.
+                    </p>
+                    <textarea
+                      rows={4}
+                      value={modalForm.cardDescription}
+                      onChange={(e) => setModalForm({ ...modalForm, cardDescription: e.target.value })}
+                      placeholder="Short teaser shown on the tour card, e.g. Discover the heart of Marrakesh on a private walking tour..."
+                      style={{
+                        width: "100%",
+                        padding: "12px",
+                        background: "#14100c",
+                        border: "1px solid rgba(212, 163, 89, 0.25)",
+                        borderRadius: "8px",
+                        color: "#f5eee4",
+                        fontSize: "13px",
+                        lineHeight: 1.6,
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "6px" }}>
+                      <label style={{ fontSize: "12px", fontWeight: 700, color: "#d8cebe" }}>
+                        📖 Full Tour Description <span style={{ fontWeight: 400, color: "#a89b8c" }}>— page détaillée (Experience Overview)</span>
+                      </label>
+                      <span style={{ fontSize: "11px", color: "#8e8071" }}>
+                        {modalForm.fullDescription.split(/\n\n+/).filter((p) => p.trim()).length} paragraphe(s)
+                      </span>
+                    </div>
+                    <p style={{ margin: "0 0 8px 0", fontSize: "11.5px", color: "#a89b8c" }}>
+                      Récit détaillé affiché dans la section &quot;Experience Overview&quot; de la page du circuit. Séparez vos paragraphes par une ligne vide.
                     </p>
                     <textarea
                       rows={10}
-                      value={modalForm.description}
-                      onChange={(e) => setModalForm({ ...modalForm, description: e.target.value })}
+                      value={modalForm.fullDescription}
+                      onChange={(e) => setModalForm({ ...modalForm, fullDescription: e.target.value })}
                       placeholder="Décrivez en détail l'expérience, l'histoire et les moments forts de ce circuit..."
                       style={{
                         width: "100%",
@@ -1964,13 +2403,18 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
               }}
             >
               <div style={{ fontSize: "11.5px", color: "#8e8071" }}>
-                Enregistre description, inclusions & carte dans Neon DB
+                {isCreating
+                  ? "Crée le circuit avec textes card + page indépendants"
+                  : "Enregistre textes card + page (séparés), inclusions & carte dans Neon DB"}
               </div>
 
               <div style={{ display: "flex", gap: "10px" }}>
                 <button
                   type="button"
-                  onClick={() => setEditingTour(null)}
+                  onClick={() => {
+                    setEditingTour(null);
+                    setIsCreating(false);
+                  }}
                   style={{
                     padding: "10px 18px",
                     background: "transparent",
@@ -1987,7 +2431,7 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
                 <button
                   type="button"
                   onClick={handleSaveModal}
-                  disabled={savingId === editingTour.id}
+                  disabled={savingId === (isCreating ? "new" : editingTour.id)}
                   style={{
                     padding: "10px 22px",
                     background: "linear-gradient(135deg, #d4a359 0%, #b38237 100%)",
@@ -2000,9 +2444,89 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
                     boxShadow: "0 4px 15px rgba(212, 163, 89, 0.3)",
                   }}
                 >
-                  {savingId === editingTour.id ? "Sauvegarde en cours..." : "Enregistrer dans Neon"}
+                  {savingId === (isCreating ? "new" : editingTour.id)
+                    ? "Sauvegarde en cours..."
+                    : isCreating
+                      ? "Créer le Circuit"
+                      : "Enregistrer dans Neon"}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete tour confirmation */}
+      {deleteTarget && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.8)",
+            backdropFilter: "blur(6px)",
+            zIndex: 10000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setDeleteTarget(null);
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "440px",
+              background: "#1c1410",
+              border: "1px solid rgba(239, 68, 68, 0.4)",
+              borderRadius: "14px",
+              padding: "28px",
+              textAlign: "center",
+              color: "#f5eee4",
+            }}
+          >
+            <div style={{ fontSize: "36px", marginBottom: "12px" }}>🗑️</div>
+            <h3 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 8px 0" }}>
+              Supprimer ce circuit ?
+            </h3>
+            <p style={{ fontSize: "13px", color: "#a89b8c", margin: "0 0 6px 0", lineHeight: 1.5 }}>
+              <strong style={{ color: "#f5eee4" }}>{deleteTarget.title}</strong>
+              <br />
+              <code style={{ color: "#fca5a5" }}>/{deleteTarget.slug}</code> sera retiré du site et de la base de données.
+            </p>
+            <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
+              <button
+                onClick={handleDeleteTour}
+                disabled={isDeletingTour}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontWeight: 700,
+                  fontSize: "13px",
+                  cursor: "pointer",
+                }}
+              >
+                {isDeletingTour ? "Suppression..." : "Oui, Supprimer"}
+              </button>
+              <button
+                onClick={() => setDeleteTarget(null)}
+                style={{
+                  padding: "10px 18px",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                }}
+              >
+                Annuler
+              </button>
             </div>
           </div>
         </div>
@@ -2018,12 +2542,14 @@ function TourCardItem({
   onQuickSave,
   onToggleActive,
   onOpenEdit,
+  onDelete,
 }: {
   tour: TourPackageItem;
   saving: boolean;
   onQuickSave: (tour: TourPackageItem, newPrice: string, newNote: string) => void;
   onToggleActive: (tour: TourPackageItem) => void;
   onOpenEdit: (tour: TourPackageItem, initialTab?: "pricing" | "description" | "included" | "map") => void;
+  onDelete: (tour: TourPackageItem) => void;
 }) {
   const [quickPrice, setQuickPrice] = useState(tour.price);
   const [quickNote, setQuickNote] = useState(tour.priceNote || "");
@@ -2155,6 +2681,15 @@ function TourCardItem({
               📍 {stopsCount} arrêts
             </span>
           )}
+          {tour.cardImage ? (
+            <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "#86efac" }}>
+              🖼️ Photo définie
+            </span>
+          ) : (
+            <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "#8e8071" }}>
+              ○ Icône {tour.icon || "compass"} / {tour.cls || "t1"}
+            </span>
+          )}
         </div>
       </div>
 
@@ -2233,13 +2768,45 @@ function TourCardItem({
         />
       </div>
 
+      {/* Independent-texts status */}
+      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+        <span
+          title={tour.cardDescription || "—"}
+          style={{
+            fontSize: "10.5px",
+            padding: "3px 9px",
+            borderRadius: "10px",
+            background: tour.cardDescription ? "rgba(34, 197, 94, 0.12)" : "rgba(239, 68, 68, 0.12)",
+            border: `1px solid ${tour.cardDescription ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)"}`,
+            color: tour.cardDescription ? "#86efac" : "#fca5a5",
+            fontWeight: 600,
+          }}
+        >
+          🃏 Card: {tour.cardDescription ? `${tour.cardDescription.slice(0, 42)}${tour.cardDescription.length > 42 ? "…" : ""}` : "manquant"}
+        </span>
+        <span
+          title={`${(tour.fullDescription || "").split(/\n\n+/).filter((p) => p.trim()).length} paragraphe(s)`}
+          style={{
+            fontSize: "10.5px",
+            padding: "3px 9px",
+            borderRadius: "10px",
+            background: tour.fullDescription ? "rgba(34, 197, 94, 0.12)" : "rgba(239, 68, 68, 0.12)",
+            border: `1px solid ${tour.fullDescription ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)"}`,
+            color: tour.fullDescription ? "#86efac" : "#fca5a5",
+            fontWeight: 600,
+          }}
+        >
+          📖 Page: {(tour.fullDescription || "").split(/\n\n+/).filter((p) => p.trim()).length} paragraphe(s)
+        </span>
+      </div>
+
       {/* Footer Buttons */}
       <div style={{ display: "flex", gap: "8px", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
         <button
           onClick={() => onOpenEdit(tour, "pricing")}
           style={{
             flex: 1,
-            minWidth: "125px",
+            minWidth: "115px",
             padding: "9px 12px",
             background: "rgba(255, 255, 255, 0.06)",
             border: "1px solid rgba(255, 255, 255, 0.12)",
@@ -2256,6 +2823,28 @@ function TourCardItem({
         >
           <span>✏️</span>
           <span>Modifier Infos</span>
+        </button>
+
+        <button
+          onClick={() => onOpenEdit(tour, "description")}
+          style={{
+            padding: "9px 12px",
+            background: "rgba(34, 197, 94, 0.12)",
+            border: "1px solid rgba(34, 197, 94, 0.3)",
+            borderRadius: "8px",
+            color: "#86efac",
+            fontSize: "12px",
+            fontWeight: 700,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+          }}
+          title="Éditer la Card Description et la Full Tour Description (indépendantes)"
+        >
+          <span>📝</span>
+          <span>Textes</span>
         </button>
 
         <button
@@ -2277,7 +2866,7 @@ function TourCardItem({
           title="Éditer la carte satellite, les arrêts GPS et l'itinéraire"
         >
           <span>🗺️</span>
-          <span>Carte & Arrêts</span>
+          <span>Carte</span>
         </button>
 
         <Link
@@ -2300,6 +2889,22 @@ function TourCardItem({
           <span>Page</span>
           <span>↗</span>
         </Link>
+
+        <button
+          onClick={() => onDelete(tour)}
+          title="Supprimer ce circuit"
+          style={{
+            padding: "9px 10px",
+            background: "rgba(239, 68, 68, 0.1)",
+            border: "1px solid rgba(239, 68, 68, 0.25)",
+            borderRadius: "8px",
+            color: "#fca5a5",
+            fontSize: "12px",
+            cursor: "pointer",
+          }}
+        >
+          🗑️
+        </button>
       </div>
     </div>
   );

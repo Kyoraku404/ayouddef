@@ -219,7 +219,7 @@ export function TourDetailClient({ tour, otherTours }: TourDetailClientProps) {
             </div>
 
             {/* Right Booking Sidebar (lg:col-span-4) */}
-            <div className="lg:col-span-4 sticky top-28 space-y-6">
+            <div className="lg:col-span-4 lg:sticky lg:top-28 self-start min-w-0 space-y-6">
               <div className="p-6 sm:p-8 rounded-2xl bg-cream border-2 border-gold/40 shadow-xl">
                 <span className="eyebrow text-xs uppercase tracking-widest text-gold mb-1">
                   Private Reservation

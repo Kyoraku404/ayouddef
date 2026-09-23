@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Loader2, CheckCircle2, MessageCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { getWhatsAppReservationUrl } from "@/lib/whatsapp";
-import { trackWhatsAppClick } from "@/lib/analytics-client";
+import { trackWhatsAppClick, sendAnalyticsEvent } from "@/lib/analytics-client";
 import { useLanguage } from "@/components/common/LanguageProvider";
 
 const FALLBACK_TOUR_OPTIONS = [
@@ -50,6 +50,7 @@ interface ReservationSectionProps {
 export function ReservationSection({ selectedTour }: ReservationSectionProps) {
   const { t } = useLanguage();
   const [liveTours, setLiveTours] = useState<LiveTourOption[]>([]);
+  const [toursLoaded, setToursLoaded] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -61,7 +62,6 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
   });
 
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Load live pack titles/prices so admin price edits are reflected here.
@@ -69,7 +69,8 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
     fetch("/api/tours")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.tours) && data.tours.length > 0) {
+        if (data.success && Array.isArray(data.tours)) {
+          setToursLoaded(true);
           setLiveTours(
             data.tours.map((tour: { slug: string; title: string; price?: string }) => ({
               slug: tour.slug,
@@ -83,7 +84,7 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
   }, []);
 
   const tourOptions =
-    liveTours.length > 0
+    toursLoaded
       ? [...liveTours.map((tour) => tour.title), "General Inquiry / Custom Itinerary"]
       : FALLBACK_TOUR_OPTIONS;
 
@@ -141,8 +142,8 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
         return;
       }
 
-      setSubmitted(true);
-      setLoading(false);
+      void sendAnalyticsEvent("WHATSAPP_CLICK", window.location.pathname, { source: "reservation_submit" });
+      window.location.assign(getWhatsAppReservationUrl(formData));
     } catch {
       setErrorMsg("Network error. Please try again or reach out on WhatsApp.");
       setLoading(false);
@@ -198,73 +199,6 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
 
         {/* Right Column: Form Card */}
         <div>
-          {submitted ? (
-            <div className="form-card text-center">
-              <div className="w-16 h-16 rounded-full bg-sand-soft text-terracotta border border-sand flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8" />
-              </div>
-
-              <h3 style={{ fontSize: "1.6rem", marginBottom: "12px" }}>
-                {t.reservation.successTitle}
-              </h3>
-
-              <p style={{ color: "var(--brown-soft)", fontSize: "0.98rem", marginBottom: "20px" }}>
-                {t.reservation.successMsg.replace("{tour}", formData.tour)}
-              </p>
-
-              {/* Required confirmation notice */}
-              <div
-                style={{
-                  background: "var(--sand-soft)",
-                  border: "1px solid var(--sand)",
-                  borderRadius: "14px",
-                  padding: "16px 20px",
-                  textAlign: "left",
-                  fontSize: "0.86rem",
-                  color: "var(--brown)",
-                  marginBottom: "24px",
-                }}
-              >
-                <strong style={{ color: "var(--terracotta-dark)", display: "block", marginBottom: "4px" }}>
-                  Notice of Confirmation:
-                </strong>
-                {t.reservation.reassurance}
-              </div>
-
-              <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-                <a
-                  href={getWhatsAppReservationUrl(formData)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-primary"
-                  style={{ background: "#25D366" }}
-                  onClick={(e) => trackWhatsAppClick("reservation_success_continue", getWhatsAppReservationUrl(formData), e)}
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>{t.reservation.whatsAppDirect}</span>
-                </a>
-
-                <button
-                  type="button"
-                  className="btn btn-dark"
-                  onClick={() => {
-                    setSubmitted(false);
-                    setFormData({
-                      fullName: "",
-                      email: "",
-                      phone: "",
-                      date: "",
-                      people: 2,
-                      tour: selectedTour || FALLBACK_TOUR_OPTIONS[0],
-                      message: "",
-                    });
-                  }}
-                >
-                  Send Another Request
-                </button>
-              </div>
-            </div>
-          ) : (
             <form className="form-card" id="resForm" onSubmit={handleSubmit} noValidate>
               <div className="form-row two">
                 <div className="field">
@@ -388,7 +322,6 @@ export function ReservationSection({ selectedTour }: ReservationSectionProps) {
                 )}
               </button>
             </form>
-          )}
         </div>
       </div>
     </section>

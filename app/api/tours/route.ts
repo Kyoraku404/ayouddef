@@ -59,7 +59,7 @@ export async function GET() {
       return NextResponse.json({ success: true, tours: mergedTours });
     }
 
-    return NextResponse.json({ success: true, tours: toursData });
+    return NextResponse.json({ success: true, tours: [] });
   } catch (error: any) {
     console.warn("Falling back to local toursData:", error.message);
     return NextResponse.json({ success: true, tours: toursData });

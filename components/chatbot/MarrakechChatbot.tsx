@@ -48,7 +48,7 @@ export function MarrakechChatbot() {
   const [inputQuery, setInputQuery] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesScrollRef = useRef<HTMLDivElement | null>(null);
 
   const { language, t } = useLanguage();
   const { formatPrice } = useCurrency();
@@ -93,7 +93,8 @@ export function MarrakechChatbot() {
   // Auto-scroll to bottom of chat
   useEffect(() => {
     if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      const list = messagesScrollRef.current;
+      if (list) list.scrollTo({ top: list.scrollHeight, behavior: "instant" });
     }
   }, [messages, isTyping, isOpen]);
 
@@ -281,7 +282,7 @@ export function MarrakechChatbot() {
 
       {/* Floating Chat Modal Panel */}
       {isOpen && (
-        <div className="fixed inset-x-2.5 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-24 z-50 w-auto sm:w-[420px] max-h-[calc(100svh-90px)] h-[560px] flex flex-col bg-cream rounded-2xl sm:rounded-3xl shadow-2xl border border-sand/90 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-x-2.5 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-24 z-50 w-auto sm:w-[420px] max-h-[calc(100dvh-100px)] h-[560px] flex flex-col bg-cream rounded-2xl sm:rounded-3xl shadow-2xl border border-sand/90 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Header Bar */}
           <div className="p-4 bg-gradient-to-r from-brown via-brown-soft to-brown text-cream flex items-center justify-between border-b border-sand/20">
             <div className="flex items-center gap-3">
@@ -343,7 +344,7 @@ export function MarrakechChatbot() {
           </div>
 
           {/* Messages Scroll Area */}
-          <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-cream via-sand-soft/30 to-cream">
+          <div ref={messagesScrollRef} className="min-h-0 flex-grow overflow-y-auto overscroll-contain p-4 space-y-4 bg-gradient-to-b from-cream via-sand-soft/30 to-cream">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -389,7 +390,6 @@ export function MarrakechChatbot() {
                 <span className="w-2 h-2 rounded-full bg-terracotta animate-bounce [animation-delay:0.4s]" />
               </div>
             )}
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Quick Direct WhatsApp Assistance Bar */}
@@ -426,7 +426,7 @@ export function MarrakechChatbot() {
                   ? "Pregunta sobre Marrakech..."
                   : "Ask anything about Marrakech..."
               }
-              className="flex-grow px-3.5 py-2.5 rounded-full bg-sand-soft text-xs sm:text-sm text-ink border border-sand focus:outline-none focus:border-terracotta transition-colors placeholder:text-ink/40"
+              className="min-w-0 flex-grow px-3.5 py-2.5 rounded-full bg-sand-soft text-base sm:text-sm text-ink border border-sand focus:outline-none focus:border-terracotta transition-colors placeholder:text-ink/40"
             />
             <button
               type="submit"

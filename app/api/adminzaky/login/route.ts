@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   try {
     const { username, password } = await req.json();
 
-    if (!username || !password) {
+    if (typeof username !== "string" || typeof password !== "string" || !username.trim() || !password) {
       return NextResponse.json(
         { error: "Username and password are required" },
         { status: 400 }

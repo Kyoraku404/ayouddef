@@ -2,10 +2,8 @@ import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { prisma } from "./db";
+import { getAuthSecret } from "./auth-secret";
 
-const ZAKY_JWT_SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "moroccan-secret-token-marrakeshi-tour-guide-2026-key"
-);
 
 export const ZAKY_SESSION_COOKIE = "zaky_session";
 
@@ -22,12 +20,13 @@ export async function createZakySession(username: string): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(ZAKY_JWT_SECRET);
+    .sign(getAuthSecret("zaky"));
 }
 
 export async function verifyZakySession(token: string): Promise<{ username: string; role: string } | null> {
   try {
-    const { payload } = await jwtVerify(token, ZAKY_JWT_SECRET);
+    const { payload } = await jwtVerify(token, getAuthSecret("zaky"), { algorithms: ["HS256"] });
+    if (payload.role !== "CLIENT_ADMIN" || typeof payload.username !== "string") return null;
     return payload as unknown as { username: string; role: string };
   } catch {
     return null;
@@ -72,11 +71,6 @@ export async function authenticateZaky(username: string, pass: string): Promise<
     }
   } catch (err) {
     console.error("[ZakyAuth] Error verifying credentials against database:", err);
-  }
-
-  // Fallback check against official credentials if DB is temporarily disconnected
-  if (username.toLowerCase() === "zaky" && pass === "cirrav-wetZon-4boqsi") {
-    return { username: "zaky", id: "zaky_master" };
   }
 
   return null;

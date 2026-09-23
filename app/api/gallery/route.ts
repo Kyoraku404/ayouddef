@@ -45,27 +45,6 @@ export async function GET() {
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     });
 
-    if (photos.length === 0) {
-      return NextResponse.json(
-        { success: true, photos: buildFallbackGallery(40), fallback: true },
-        { headers: { "Cache-Control": "no-store" } }
-      );
-    }
-
-    // If admin uploaded fewer than 40, top up with fallback so the
-    // gallery section always looks full (40+ photos).
-    if (photos.length < 40) {
-      const needed = 40 - photos.length;
-      const filler = buildFallbackGallery(needed).map((f, i) => ({
-        ...f,
-        id: `filler-${i + 1}`,
-      }));
-      return NextResponse.json(
-        { success: true, photos: [...photos, ...filler], fallback: false },
-        { headers: { "Cache-Control": "no-store" } }
-      );
-    }
-
     return NextResponse.json(
       { success: true, photos, fallback: false },
       { headers: { "Cache-Control": "no-store" } }

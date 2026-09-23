@@ -41,6 +41,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
@@ -48,7 +49,7 @@ body {
   background-color: var(--cream);
   color: var(--ink);
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -90,6 +91,10 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 
 section {
   position: relative;
+}
+
+main [id] {
+  scroll-margin-top: 88px;
 }
 
 /* Button styles */
@@ -342,12 +347,28 @@ header.site-header.solid .burger span {
   gap: 18px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  visibility: hidden;
+  pointer-events: none;
   transform: translateY(-100%);
-  transition: transform .45s cubic-bezier(.65, 0, .35, 1);
+  transition: transform .3s ease, visibility .3s;
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
 }
+
+.mobile-menu > * { flex-shrink: 0; }
+
+header.site-header.menu-open {
+  z-index: 110;
+  background: var(--brown);
+  box-shadow: none;
+}
+
+header.site-header.menu-open .brand { color: var(--cream); }
 
 .mobile-menu.open {
   transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .mobile-menu a {
@@ -363,6 +384,7 @@ header.site-header.solid .burger span {
 }
 
 @media(min-width: 1024px) {
+  .mobile-menu { display: none; }
   nav.links {
     display: flex;
   }
@@ -1291,7 +1313,14 @@ footer.site-footer {
   .brand {
     font-size: 1.05rem;
     gap: 8px;
+    min-width: 0;
+    flex-shrink: 1;
   }
+
+  .site-header .brand span { white-space: normal; line-height: 1.15; }
+  .site-header .brand-mark, .nav-cta-wrap { flex-shrink: 0; }
+  .res-grid > *, .about-grid > *, .foot-grid > * { min-width: 0; }
+  .btn { white-space: normal; text-align: center; }
 
   .brand-mark {
     width: 34px;
@@ -1401,7 +1430,7 @@ footer.site-footer {
   /* Reservation Section & Inputs */
   .reservation {
     padding: 65px 0;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   .res-grid {

@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getZakySession } from "@/lib/auth";
 import { getOcnSession } from "@/lib/ocn-auth";
-import { toursData } from "@/lib/tours-data";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +12,10 @@ async function isAuthorized() {
   return Boolean(ocn);
 }
 
-export const VALID_ICONS = ["gate", "basket", "palace", "tea", "monument", "compass", "road"];
-export const VALID_THEMES = ["t1", "t2", "t3", "t4", "t5", "t6", "t7"];
+const VALID_ICONS = ["gate", "basket", "palace", "tea", "monument", "compass", "road"];
+const VALID_THEMES = ["t1", "t2", "t3", "t4", "t5", "t6", "t7"];
 
-export function slugifyTitle(title: string): string {
+function slugifyTitle(title: string): string {
   return title
     .toLowerCase()
     .normalize("NFD")
@@ -26,75 +25,6 @@ export function slugifyTitle(title: string): string {
     .slice(0, 80);
 }
 
-async function ensureSeeded() {
-  const existing = await prisma.tourPackage.findMany();
-  if (existing.length === 0) {
-    // First run: seed TourPackage table from static catalogue with
-    // INDEPENDENT card + full descriptions, icon and theme per tour.
-    for (let i = 0; i < toursData.length; i++) {
-      const t = toursData[i];
-      await prisma.tourPackage.upsert({
-        where: { slug: t.slug },
-        update: {},
-        create: {
-          slug: t.slug,
-          title: t.title,
-          subtitle: t.subtitle || null,
-          price: t.price || "700 MAD",
-          priceNote: t.priceNote || null,
-          duration: t.duration || null,
-          groupType: t.groupType || null,
-          languages: t.languages || null,
-          badge: null,
-          description: (t.fullDescription || [t.description]).join("\n\n"),
-          cardDescription: t.description || null,
-          fullDescription: (t.fullDescription || [t.description]).join("\n\n"),
-          icon: t.icon || "gate",
-          cls: t.cls || "t1",
-          highlights: JSON.stringify(t.highlights || []),
-          included: JSON.stringify(t.included || []),
-          notIncluded: JSON.stringify(t.notIncluded || []),
-          itinerary: JSON.stringify(t.itinerary || []),
-          mapCenter: JSON.stringify(t.mapCenter || { lat: 31.6295, lng: -7.988, zoom: 15 }),
-          active: true,
-          sortOrder: i,
-        },
-      });
-    }
-    return;
-  }
-
-  // Backfill rows created before the split: fill ONLY null fields, never
-  // overwrite admin content. Card and full stay independent.
-  for (const pkg of existing) {
-    const fallback = toursData.find((t) => t.slug === pkg.slug);
-    const data: Record<string, string | null> = {};
-    if (pkg.cardDescription == null) {
-      data.cardDescription =
-        fallback?.description ??
-        (pkg.description ? pkg.description.split(/\n\n+/)[0].trim() : null) ??
-        null;
-    }
-    if (pkg.fullDescription == null) {
-      const legacyParas = (pkg.description ?? "")
-        .split(/\n\n+/)
-        .map((s) => s.trim())
-        .filter(Boolean);
-      data.fullDescription =
-        legacyParas.length > 1
-          ? pkg.description
-          : fallback && fallback.fullDescription.length > 0
-            ? fallback.fullDescription.join("\n\n")
-            : (pkg.description ?? null);
-    }
-    if (pkg.icon == null) data.icon = (fallback?.icon as string | undefined) ?? "gate";
-    if (pkg.cls == null) data.cls = fallback?.cls ?? "t1";
-    if (Object.keys(data).length > 0) {
-      await prisma.tourPackage.update({ where: { id: pkg.id }, data });
-    }
-  }
-}
-
 // GET: Fetch all tour packages with prices from PostgreSQL
 export async function GET() {
   try {
@@ -102,7 +32,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await ensureSeeded();
+
 
     const tours = await prisma.tourPackage.findMany({
       orderBy: { sortOrder: "asc" },

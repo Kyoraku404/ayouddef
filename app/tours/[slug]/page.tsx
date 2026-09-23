@@ -1,26 +1,27 @@
-import React from "react";
+import React, { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { toursData } from "@/lib/tours-data";
 import { Tour } from "@/lib/types";
-import { siteConfig } from "@/lib/config";
+export const dynamic = "force-dynamic";
+
+const readTour = cache(async (slug: string) => {
+  try { return { tour: await prisma.tourPackage.findUnique({ where: { slug } }), available: true }; }
+  catch { return { tour: null, available: false }; }
+});
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return toursData.map((tour) => ({
-    slug: tour.slug,
-  }));
-}
+
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const staticTour = toursData.find((t) => t.slug === slug);
-  const dbTour = !staticTour ? await prisma.tourPackage.findUnique({ where: { slug } }).catch(() => null) : null;
-  const title = staticTour?.title || dbTour?.title;
-  const subtitle = staticTour?.subtitle || dbTour?.subtitle;
+  const { tour: dbTour, available } = await readTour(slug);
+  const title = available && !dbTour?.active ? null : dbTour?.title || staticTour?.title;
+  const subtitle = dbTour?.subtitle || staticTour?.subtitle;
   const image = staticTour?.gallery?.[0]?.src || "/images/hero.jpg";
 
   if (!title) {
@@ -72,9 +73,9 @@ import { TourDetailClient } from "@/components/tours/TourDetailClient";
 export default async function TourDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const staticTour = toursData.find((t) => t.slug === slug);
-  const dbTour = await prisma.tourPackage.findUnique({ where: { slug } }).catch(() => null);
+  const { tour: dbTour, available } = await readTour(slug);
 
-  if (!staticTour && !dbTour) {
+  if ((!staticTour && !dbTour) || (available && !dbTour?.active)) {
     notFound();
   }
 

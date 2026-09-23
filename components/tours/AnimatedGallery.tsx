@@ -6,6 +6,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { TourGalleryImage } from "@/lib/types";
 import { useSiteImages } from "@/components/common/SiteImagesProvider";
+import { useBodyScrollLock } from "@/components/common/useBodyScrollLock";
 
 const TOUR_SLOT_PREFIX_MAP: Record<string, string> = {
   "marrakesh-medina-tour": "tour_medina_",
@@ -26,6 +27,7 @@ interface AnimatedGalleryProps {
 export function AnimatedGallery({ images, tourTitle, tourSlug }: AnimatedGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  useBodyScrollLock(isLightboxOpen);
   const [direction, setDirection] = useState(0);
   const { getImage } = useSiteImages();
 
@@ -213,7 +215,7 @@ export function AnimatedGallery({ images, tourTitle, tourSlug }: AnimatedGallery
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-brown/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
+            className="fixed inset-0 z-[150] bg-brown/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 overscroll-contain"
             onClick={() => setIsLightboxOpen(false)}
           >
             <button

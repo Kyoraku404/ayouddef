@@ -891,7 +891,7 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
             Éditeur Complet de Circuits, Tarifs, Textes & Carte Itinéraire
           </h4>
           <p style={{ margin: 0, fontSize: "12.5px", color: "#a89b8c", lineHeight: 1.4 }}>
-            Chaque circuit possède <strong style={{ color: "#ffd79a" }}>2 textes indépendants</strong> : la <strong style={{ color: "#ffd79a" }}>Card Description</strong> (carte, page Tours) et la <strong style={{ color: "#ffd79a" }}>Full Tour Description</strong> (page détaillée après &quot;Discover More&quot;). Modifier l&apos;un ne touche jamais l&apos;autre. Prix, badge, icône, inclus et carte GPS restent synchronisés avec PostgreSQL Neon.
+            Chaque circuit possède <strong style={{ color: "#ffd79a" }}>2 textes indépendants</strong> : la <strong style={{ color: "#ffd79a" }}>Card Description</strong> (carte, page Tours) et la <strong style={{ color: "#ffd79a" }}>Full Tour Description</strong> (page détaillée après &quot;Discover More&quot;). Modifier l&apos;un ne touche jamais l&apos;autre. Prix, badge, icône, inclus et carte GPS restent synchronisés avec PostgreSQL Supabase.
           </p>
         </div>
       </div>
@@ -900,7 +900,7 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
       {loading ? (
         <div style={{ textAlign: "center", padding: "60px 20px", color: "#d4a359" }}>
           <div style={{ fontSize: "28px", marginBottom: "12px" }}>⏳</div>
-          <div style={{ fontSize: "15px", fontWeight: 600 }}>Loading tour packages from Neon database...</div>
+          <div style={{ fontSize: "15px", fontWeight: 600 }}>Loading tour packages from Supabase database...</div>
         </div>
       ) : filteredTours.length === 0 ? (
         <div
@@ -2405,7 +2405,7 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
               <div style={{ fontSize: "11.5px", color: "#8e8071" }}>
                 {isCreating
                   ? "Crée le circuit avec textes card + page indépendants"
-                  : "Enregistre textes card + page (séparés), inclusions & carte dans Neon DB"}
+                  : "Enregistre textes card + page (séparés), inclusions & carte dans Supabase DB"}
               </div>
 
               <div style={{ display: "flex", gap: "10px" }}>
@@ -2448,7 +2448,7 @@ export function TourPacksTab({ notify }: TourPacksTabProps) {
                     ? "Sauvegarde en cours..."
                     : isCreating
                       ? "Créer le Circuit"
-                      : "Enregistrer dans Neon"}
+                      : "Enregistrer dans Supabase"}
                 </button>
               </div>
             </div>
@@ -2706,7 +2706,7 @@ function TourCardItem({
           <label style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#d4a359", fontWeight: 700 }}>
             Prix du Pack (Live)
           </label>
-          <span style={{ fontSize: "10.5px", color: "#8e8071" }}>Sauvegarde Neon direct</span>
+          <span style={{ fontSize: "10.5px", color: "#8e8071" }}>Sauvegarde Supabase direct</span>
         </div>
 
         <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>

@@ -9,6 +9,7 @@ import { useSiteImages } from "@/components/common/SiteImagesProvider";
 import { useCurrency } from "@/components/common/CurrencyProvider";
 import { useLanguage } from "@/components/common/LanguageProvider";
 import { Language } from "@/lib/i18n";
+import { useBodyScrollLock } from "@/components/common/useBodyScrollLock";
 
 const languages: { code: Language; label: string; full: string }[] = [
   { code: "en", label: "EN", full: "English" },
@@ -21,6 +22,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+  const unlockScroll = useBodyScrollLock(mobileMenuOpen);
   const { getImage } = useSiteImages();
   const logoImage = getImage("navbar_logo", "/brand-mark.png");
 
@@ -31,6 +33,7 @@ export function Navbar() {
     const onScroll = () => {
       setScrolled(window.scrollY > 40);
     };
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -38,28 +41,35 @@ export function Navbar() {
   // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape") setMobileMenuOpen(false);
       };
       window.addEventListener("keydown", handleKeyDown);
       return () => {
-        document.body.style.overflow = "";
         window.removeEventListener("keydown", handleKeyDown);
       };
-    } else {
-      document.body.style.overflow = "";
     }
   }, [mobileMenuOpen]);
 
-  const closeMobileMenu = () => setMobileMenuOpen(false);
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const onResize = () => { if (desktop.matches) setMobileMenuOpen(false); };
+    desktop.addEventListener("change", onResize);
+    return () => desktop.removeEventListener("change", onResize);
+  }, []);
+
+  const closeMobileMenu = () => {
+    // Release before the anchor's default navigation, so restoration cannot undo it.
+    unlockScroll();
+    setMobileMenuOpen(false);
+  };
 
   // Helper to ensure links work from both home and tour subpages
   const getHref = (hash: string) => (isHomePage ? hash : `/${hash}`);
 
   return (
     <>
-      <header id="siteHeader" className={`site-header ${scrolled ? "solid" : ""}`}>
+      <header id="siteHeader" className={`site-header ${scrolled || !isHomePage ? "solid" : ""} ${mobileMenuOpen ? "menu-open" : ""}`}>
         <div className="container-custom nav-row">
           <Link href={getHref("#home")} className="brand" aria-label="Marrakeshi Tour Guide Home">
             <Image
@@ -152,6 +162,7 @@ export function Navbar() {
               id="burgerBtn"
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileMenuOpen}
+              aria-controls="mobileMenu"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <span></span>
@@ -161,7 +172,7 @@ export function Navbar() {
       </header>
 
       {/* Mobile Menu */}
-      <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`} id="mobileMenu">
+      <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`} id="mobileMenu" inert={!mobileMenuOpen} aria-hidden={!mobileMenuOpen}>
         {/* Mobile Switchers Bar */}
         <div className="flex flex-col gap-3.5 p-4 w-full max-w-[290px] mb-2 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md">
           <div className="flex items-center justify-between">

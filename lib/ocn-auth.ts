@@ -1,12 +1,10 @@
+import { getAuthSecret } from "./auth-secret";
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { getOcnAdmin, updateOcnAdminPassword, incrementOcnFailedAttempts, resetOcnFailedAttempts } from "./ocn-db";
 import { OcnAdminUser } from "./ocn-types";
 
-const OCN_JWT_SECRET = new TextEncoder().encode(
-  process.env.OCN_AUTH_SECRET || process.env.AUTH_SECRET || "ocn-super-secret-admin-token-2026-key-morocco"
-);
 
 export const OCN_SESSION_COOKIE_NAME = "ocn_session";
 
@@ -28,14 +26,14 @@ export async function createOcnSessionToken(user: { id: string; username: string
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("24h")
-    .sign(OCN_JWT_SECRET);
+    .sign(getAuthSecret("ocn"));
 }
 
 export async function verifyOcnSessionToken(
   token: string
 ): Promise<{ sub: string; username: string; role: string; mustChangePassword: boolean } | null> {
   try {
-    const { payload } = await jwtVerify(token, OCN_JWT_SECRET);
+    const { payload } = await jwtVerify(token, getAuthSecret("ocn"));
     if (payload.role !== "OCN_ADMIN") return null;
     return payload as unknown as { sub: string; username: string; role: string; mustChangePassword: boolean };
   } catch {

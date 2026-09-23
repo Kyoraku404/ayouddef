@@ -21,9 +21,6 @@ export default function HomePage() {
 
   const handleSelectTour = (tourTitle: string) => {
     setSelectedTour(tourTitle);
-    requestAnimationFrame(() => {
-      document.getElementById("reservation")?.scrollIntoView({ behavior: "smooth" });
-    });
   };
 
   // Deep-link support: /?tour=<slug-or-title>#reservation preselects the pack

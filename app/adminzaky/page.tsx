@@ -665,7 +665,7 @@ export default function ZakyAdminDashboard() {
         <div style={{ background: "rgba(35, 29, 23, 0.75)", border: "1px solid rgba(212, 163, 89, 0.25)", borderRadius: "12px", padding: "16px 20px" }}>
           <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#a89b8c", fontWeight: 700 }}>Photos Globales</div>
           <div style={{ fontSize: "24px", fontWeight: 800, color: "#f5eee4", marginTop: "4px" }}>{images.length} Emplacements</div>
-          <div style={{ fontSize: "11px", color: "#86efac", marginTop: "3px" }}>● Neon PostgreSQL & CDN</div>
+          <div style={{ fontSize: "11px", color: "#86efac", marginTop: "3px" }}>● Supabase PostgreSQL & CDN</div>
         </div>
 
         <div style={{ background: "rgba(35, 29, 23, 0.75)", border: "1px solid rgba(212, 163, 89, 0.25)", borderRadius: "12px", padding: "16px 20px" }}>

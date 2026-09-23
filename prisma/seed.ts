@@ -21,15 +21,12 @@ async function main() {
   // ==========================================
 
   // 1. OCN Admin User
-  const passwordHash = await bcrypt.hash("Mohamed@1234", 12);
+  const ocnPassword = process.env.OCN_ADMIN_PASSWORD;
+  if (!ocnPassword) throw new Error("Set OCN_ADMIN_PASSWORD before seeding");
+  const passwordHash = await bcrypt.hash(ocnPassword, 12);
   const admin = await prisma.adminUser.upsert({
     where: { username: "ocnadmin" },
-    update: {
-      passwordHash,
-      mustChangePassword: true,
-      failedAttempts: 0,
-      lockedUntil: null,
-    },
+    update: {},
     create: {
       username: "ocnadmin",
       email: "admin@ocn.network",
@@ -158,12 +155,12 @@ async function main() {
     });
   }
   // 7. Zaky Client Admin User
-  const zakyPasswordHash = await bcrypt.hash("cirrav-wetZon-4boqsi", 12);
+  const zakyPassword = process.env.ZAKY_ADMIN_PASSWORD;
+  if (!zakyPassword) throw new Error("Set ZAKY_ADMIN_PASSWORD before seeding");
+  const zakyPasswordHash = await bcrypt.hash(zakyPassword, 12);
   const zakyUser = await prisma.zakyUser.upsert({
     where: { username: "zaky" },
-    update: {
-      password: zakyPasswordHash,
-    },
+    update: {},
     create: {
       username: "zaky",
       password: zakyPasswordHash,

@@ -18,7 +18,7 @@ export function ToursSection({ onSelectTour }: ToursSectionProps) {
     fetch("/api/tours")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.tours) && data.tours.length > 0) {
+        if (data.success && Array.isArray(data.tours)) {
           setTours(data.tours);
         }
       })

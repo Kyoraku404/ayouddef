@@ -1,0 +1,22 @@
+-- Provision a random login password separately; never commit database credentials.
+DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'marrakeshi_app') THEN CREATE ROLE marrakeshi_app NOLOGIN; END IF; END $$;
+GRANT USAGE ON SCHEMA public TO marrakeshi_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO marrakeshi_app;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO marrakeshi_app;
+CREATE POLICY server_access ON public."AdminUser" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."Client" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."Website" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."CommercialAgreement" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."AnalyticsEvent" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."Reservation" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."ReservationStatusHistory" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."RevenuePeriod" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."Revenue" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."OcnRevenueShare" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."Settlement" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."AuditLog" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."Tour" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."ZakyUser" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."SiteImage" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."TourPackage" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);
+CREATE POLICY server_access ON public."GuideBio" FOR ALL TO marrakeshi_app USING (true) WITH CHECK (true);

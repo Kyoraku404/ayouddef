@@ -9,15 +9,12 @@ import {
   User,
   MessageSquare,
   Compass,
-  CheckCircle2,
   AlertCircle,
   Loader2,
-  MessageCircle,
 } from "lucide-react";
 import { toursData } from "@/lib/tours-data";
 import { ReservationInput } from "@/lib/validation";
-import { getWhatsAppReservationUrl, isPlaceholderWhatsApp } from "@/lib/whatsapp";
-import { siteConfig } from "@/lib/config";
+import { getWhatsAppReservationUrl } from "@/lib/whatsapp";
 
 interface ReservationFormProps {
   selectedTour?: string;
@@ -37,7 +34,6 @@ export function ReservationForm({ selectedTour }: ReservationFormProps) {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   React.useEffect(() => {
@@ -100,9 +96,8 @@ export function ReservationForm({ selectedTour }: ReservationFormProps) {
         return;
       }
 
-      setSubmitted(true);
-      setLoading(false);
-    } catch (err: any) {
+      window.location.assign(getWhatsAppReservationUrl(formData));
+    } catch {
       setSubmissionError(
         "Network error. Please check your connection or contact Zaky directly via WhatsApp."
       );
@@ -110,74 +105,6 @@ export function ReservationForm({ selectedTour }: ReservationFormProps) {
     }
   };
 
-  if (submitted) {
-    const whatsAppUrl = getWhatsAppReservationUrl(formData);
-    const isPlaceholder = isPlaceholderWhatsApp(siteConfig.urls.whatsappNumber);
-
-    return (
-      <div className="p-8 sm:p-12 rounded-2xl bg-cream border-2 border-gold/40 shadow-xl text-center">
-        <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto mb-5">
-          <CheckCircle2 className="w-8 h-8" />
-        </div>
-
-        <h3 className="font-heading text-2xl sm:text-3xl text-brown font-semibold">
-          Reservation Request Received!
-        </h3>
-
-        <p className="mt-3 text-sm sm:text-base text-ink/80 max-w-md mx-auto leading-relaxed">
-          Thank you, <strong className="font-semibold text-brown">{formData.fullName}</strong>. Zaky has received your inquiry for the <span className="font-medium text-terracotta">{formData.tour}</span> on <span className="font-medium text-brown">{formData.date}</span> for {formData.people} {formData.people === 1 ? "guest" : "guests"}.
-        </p>
-
-        {/* Disclaimer as explicitly requested in requirements */}
-        <div className="mt-6 p-4 rounded-xl bg-sand-soft border border-sand text-xs sm:text-sm text-brown text-left max-w-lg mx-auto leading-relaxed">
-          <p className="font-semibold text-terracotta-dark flex items-center gap-1.5 mb-1">
-            <span>Notice of Confirmation:</span>
-          </p>
-          <p>
-            Please note that your reservation is an inquiry request and is <strong>not confirmed</strong> until Zaky confirms availability and verifies timing with you directly.
-          </p>
-        </div>
-
-        {/* WhatsApp Continuation CTA */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href={whatsAppUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-sm shadow-md transition-all transform hover:-translate-y-0.5"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span>Continue on WhatsApp</span>
-          </a>
-
-          <button
-            type="button"
-            onClick={() => {
-              setSubmitted(false);
-              setFormData({
-                fullName: "",
-                email: "",
-                phone: "",
-                date: "",
-                people: 2,
-                tour: toursData[0].title,
-                message: "",
-              });
-            }}
-            className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-sand-soft hover:bg-sand text-brown font-semibold text-sm transition-colors"
-          >
-            Submit Another Request
-          </button>
-        </div>
-
-        {isPlaceholder && (
-          <p className="mt-4 text-[11px] text-brown/50 italic">
-            (Developer note: WhatsApp number is currently using default configuration placeholder)
-          </p>
-        )}
-      </div>
-    );
-  }
 
   return (
     <form

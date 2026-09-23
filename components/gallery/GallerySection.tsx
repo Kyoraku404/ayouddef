@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, Camera } from "lucide-react";
 import { useLanguage } from "@/components/common/LanguageProvider";
+import { useBodyScrollLock } from "@/components/common/useBodyScrollLock";
 
 interface GalleryPhoto {
   id: string;
@@ -20,6 +21,7 @@ export function GallerySection() {
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  useBodyScrollLock(lightboxIndex !== null);
   const { language } = useLanguage();
 
   useEffect(() => {

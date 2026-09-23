@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { DEFAULT_IMAGES } from "@/lib/site-images";
+import { DEFAULT_IMAGES } from "@/lib/site-image-defaults";
 
 export interface ImageInfo {
   url: string;
@@ -33,7 +33,7 @@ export function SiteImagesProvider({ children }: { children: React.ReactNode }) 
       if (res.ok) {
         const data = await res.json();
         if (data.images) {
-          setImages((prev) => ({ ...prev, ...data.images }));
+          setImages(() => ({ ...DEFAULT_IMAGES, ...data.images }));
         }
       }
     } catch (err) {

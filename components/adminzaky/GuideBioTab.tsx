@@ -105,7 +105,7 @@ export function GuideBioTab({ notify }: GuideBioTabProps) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Save failed");
 
-      notify("Guide bio updated successfully in Neon PostgreSQL!");
+      notify("Guide bio updated successfully in Supabase PostgreSQL!");
     } catch (err: any) {
       notify(err.message || "Failed to save bio", "error");
     } finally {
@@ -122,7 +122,7 @@ export function GuideBioTab({ notify }: GuideBioTabProps) {
     return (
       <div style={{ textAlign: "center", padding: "60px 20px", color: "#d4a359" }}>
         <div style={{ fontSize: "28px", marginBottom: "12px" }}>⏳</div>
-        <div style={{ fontSize: "15px", fontWeight: 600 }}>Loading Guide Bio from Neon database...</div>
+        <div style={{ fontSize: "15px", fontWeight: 600 }}>Loading Guide Bio from Supabase database...</div>
       </div>
     );
   }
@@ -194,7 +194,7 @@ export function GuideBioTab({ notify }: GuideBioTabProps) {
             <h3 style={{ margin: 0, fontSize: "17px", fontWeight: 700, color: "#f5eee4" }}>
               Informations & Histoire du Guide
             </h3>
-            <span style={{ fontSize: "11px", color: "#86efac", fontWeight: 600 }}>● Neon Synced</span>
+            <span style={{ fontSize: "11px", color: "#86efac", fontWeight: 600 }}>● Supabase Synced</span>
           </div>
 
           {/* Name & Title Row */}
@@ -539,7 +539,7 @@ export function GuideBioTab({ notify }: GuideBioTabProps) {
             }}
           >
             <span>💾</span>
-            <span>{saving ? "Enregistrement en cours..." : "Enregistrer la Bio dans Neon"}</span>
+            <span>{saving ? "Enregistrement en cours..." : "Enregistrer la Bio dans Supabase"}</span>
           </button>
         </form>
 

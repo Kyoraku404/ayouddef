@@ -1,16 +1,11 @@
+import { getAuthSecret } from "./lib/auth-secret";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const ZAKY_JWT_SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "moroccan-secret-token-marrakeshi-tour-guide-2026-key"
-);
 
-const OCN_JWT_SECRET = new TextEncoder().encode(
-  process.env.OCN_AUTH_SECRET || process.env.AUTH_SECRET || "ocn-super-secret-admin-token-2026-key-morocco"
-);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Permanent redirect legacy /admin routes to /adminzaky
@@ -29,7 +24,7 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(ocnCookie, OCN_JWT_SECRET);
+      const { payload } = await jwtVerify(ocnCookie, getAuthSecret("ocn"));
       if (payload.role !== "OCN_ADMIN") {
         throw new Error("Forbidden");
       }
@@ -62,7 +57,8 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      await jwtVerify(sessionCookie, ZAKY_JWT_SECRET);
+      const { payload } = await jwtVerify(sessionCookie, getAuthSecret("zaky"));
+      if (payload.role !== "CLIENT_ADMIN") throw new Error("Forbidden");
       return NextResponse.next();
     } catch {
       const loginUrl = new URL("/adminzaky/login", request.url);
